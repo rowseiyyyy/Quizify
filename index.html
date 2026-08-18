@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizify — Upload. Learn. Master.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+:root{
+  --black:#121212;
+  --charcoal:#1E1E1E;
+  --charcoal-2:#2D2D2D;
+  --orange:#F97316;
+  --amber:#FB923C;
+  --white:#FFFFFF;
+  --gray-light:#F5F5F5;
+  --grad: linear-gradient(135deg,#121212 0%, #2D2D2D 55%, #F97316 100%);
+  --grad-btn: linear-gradient(120deg,#F97316,#FB923C);
+  --line: rgba(255,255,255,0.08);
+  --line-soft: rgba(255,255,255,0.05);
+  --text-dim: rgba(245,245,245,0.6);
+  --text-dimmer: rgba(245,245,245,0.38);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-orange: 0 8px 30px rgba(249,115,22,0.25);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--black);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,.display{ font-family:'Space Grotesk',sans-serif; letter-spacing:-0.02em; }
+.mono{ font-family:'JetBrains Mono',monospace; }
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer;}
+img{max-width:100%;}
+::selection{ background:var(--orange); color:var(--black); }
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--black);}
+::-webkit-scrollbar-thumb{background:var(--charcoal-2); border-radius:10px;}
+:focus-visible{ outline:2px solid var(--orange); outline-offset:2px; }
+
+.view{ display:none; }
+.view.active{ display:block; }
+
+/* ===== Icon helpers (Lucide) ===== */
+[data-lucide]{ display:inline-block; vertical-align:middle; }
+.icn{ width:1em; height:1em; stroke-width:2; }
+.feature-icon [data-lucide],
+.qa-card .ic [data-lucide],
+.stat-card .ic [data-lucide]{ width:21px; height:21px; stroke:var(--white); }
+.side-link .ic [data-lucide]{ width:17px; height:17px; }
+.icon-btn [data-lucide]{ width:17px; height:17px; }
+.fico [data-lucide], .upload-row .fico [data-lucide]{ width:19px; height:19px; }
+.t-avatar [data-lucide]{ width:16px; height:16px; }
+.empty .ic [data-lucide]{ width:34px; height:34px; }
+.proc-dot [data-lucide]{ width:12px; height:12px; }
+.dropzone .ic-big [data-lucide]{ width:38px; height:38px; }
+.toast [data-lucide]{ width:16px; height:16px; flex-shrink:0; }
+.mock-dot{ display:inline-block; }
+
+/* ===== Utility ===== */
+.container{ max-width:1180px; margin:0 auto; padding:0 32px; }
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:13px 26px; border-radius:999px; border:none; font-weight:600; font-size:14.5px;
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  white-space:nowrap;
+}
+.btn:active{ transform:scale(.97); }
+.btn-primary{ background:var(--grad-btn); color:var(--black); box-shadow:var(--shadow-orange); }
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 34px rgba(249,115,22,0.35); }
+.btn-ghost{ background:rgba(255,255,255,0.06); color:var(--white); border:1px solid var(--line); }
+.btn-ghost:hover{ background:rgba(255,255,255,0.1); }
+.btn-outline-orange{ background:transparent; border:1.5px solid var(--orange); color:var(--orange); }
+.btn-outline-orange:hover{ background:rgba(249,115,22,0.1); }
+.btn-block{ width:100%; }
+.btn-sm{ padding:9px 16px; font-size:13px; border-radius:999px; }
+.btn:disabled{ opacity:.45; cursor:not-allowed; transform:none !important; }
+
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  backdrop-filter:blur(14px);
+}
+.pill{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 13px; border-radius:999px; font-size:12.5px; font-weight:600;
+  background:rgba(249,115,22,0.12); color:var(--amber); border:1px solid rgba(249,115,22,0.25);
+}
+.pill [data-lucide]{ width:13px; height:13px; }
+.grad-text{
+  background:linear-gradient(100deg,#fff 10%, var(--amber) 55%, var(--orange) 90%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.section-label{ font-size:13px; font-weight:600; color:var(--orange); letter-spacing:.14em; text-transform:uppercase; }
+
+/* ===== Logo ===== */
+.logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:20px; }
+.logo-mark{ width:34px; height:34px; }
+.logo-mark circle.node{ fill:var(--orange); }
+.pulse{ animation:pulseNode 2.4s ease-in-out infinite; }
+.pulse:nth-child(2){ animation-delay:.4s; }
+.pulse:nth-child(3){ animation-delay:.8s; }
+.pulse:nth-child(4){ animation-delay:1.2s; }
+@keyframes pulseNode{ 0%,100%{ opacity:.55; r:2.6; } 50%{ opacity:1; r:3.6; } }
+
+/* ===== NAV ===== */
+.navbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(18,18,18,0.75); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line-soft);
+}
+.navbar-inner{ display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1180px; margin:0 auto; }
+.nav-links{ display:flex; gap:32px; align-items:center; }
+.nav-links a{ font-size:14.5px; color:var(--text-dim); transition:color .15s; }
+.nav-links a:hover{ color:var(--white); }
+.nav-cta{ display:flex; gap:12px; align-items:center; }
+
+/* ===== HERO ===== */
+.hero{ position:relative; padding:110px 32px 90px; overflow:hidden; }
+.hero-bg{ position:absolute; inset:0; background:
+    radial-gradient(circle at 18% 20%, rgba(249,115,22,0.16), transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(251,146,60,0.12), transparent 40%);
+  pointer-events:none; }
+.circuit-bg{ position:absolute; inset:0; opacity:.35; pointer-events:none; }
+.hero-content{ position:relative; max-width:800px; margin:0 auto; text-align:center; }
+.hero h1{ font-size:clamp(38px,6vw,68px); line-height:1.05; margin:22px 0 20px; font-weight:700; }
+.hero p.sub{ font-size:18px; color:var(--text-dim); max-width:600px; margin:0 auto 34px; line-height:1.6; }
+.hero-ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.hero-stats{ display:flex; gap:48px; justify-content:center; margin-top:64px; flex-wrap:wrap; }
+.hero-stat b{ display:block; font-family:'Space Grotesk',sans-serif; font-size:30px; color:var(--white); }
+.hero-stat span{ font-size:13px; color:var(--text-dimmer); }
+
+.mock-window{
+  margin:70px auto 0; max-width:920px; border-radius:20px; overflow:hidden;
+  border:1px solid var(--line); box-shadow:0 40px 90px rgba(0,0,0,.55);
+  background:var(--charcoal);
+}
+.mock-titlebar{ display:flex; gap:7px; padding:14px 18px; background:#181818; border-bottom:1px solid var(--line-soft); }
+.mock-dot{ width:10px; height:10px; border-radius:50%; }
+.mock-window .mock-body{ padding:26px; }
+
+/* ===== Sections generic ===== */
+section{ padding:100px 0; }
+.section-head{ text-align:center; max-width:640px; margin:0 auto 56px; }
+.section-head h2{ font-size:clamp(28px,4vw,42px); margin-top:14px; }
+.section-head p{ color:var(--text-dim); margin-top:14px; font-size:16px; line-height:1.6; }
+
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+@media(max-width:900px){ .grid-3,.grid-4,.grid-2{ grid-template-columns:1fr 1fr; } }
+@media(max-width:600px){ .grid-3,.grid-4,.grid-2{ grid-template-columns:1fr; } }
+
+.feature-card{ padding:30px; transition:transform .25s ease, border-color .25s ease; }
+.feature-card:hover{ transform:translateY(-6px); border-color:rgba(249,115,22,0.4); }
+.feature-icon{
+  width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:var(--grad); font-size:21px; margin-bottom:18px;
+}
+.feature-card h3{ font-size:18px; margin-bottom:8px; }
+.feature-card p{ color:var(--text-dim); font-size:14.5px; line-height:1.55; }
+
+.steps{ counter-reset:step; }
+.step-row{ display:flex; gap:26px; align-items:flex-start; padding:26px 0; border-bottom:1px solid var(--line-soft); }
+.step-row:last-child{ border-bottom:none; }
+.step-num{
+  font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--orange); font-weight:600;
+  width:38px; height:38px; border-radius:50%; border:1.5px solid var(--orange);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.step-row h4{ font-size:17px; margin-bottom:5px; }
+.step-row p{ color:var(--text-dim); font-size:14.5px; }
+
+.testimonial-card{ padding:28px; }
+.testimonial-card p{ color:var(--text-dim); font-size:14.5px; line-height:1.65; margin-bottom:18px; }
+.t-person{ display:flex; align-items:center; gap:12px; }
+.t-avatar{ width:38px; height:38px; border-radius:50%; background:var(--grad); display:flex;align-items:center;justify-content:center; font-weight:700; font-size:14px; }
+.t-person b{ font-size:14px; display:block; }
+.t-person span{ font-size:12.5px; color:var(--text-dimmer); }
+
+.faq-item{ border-bottom:1px solid var(--line-soft); padding:20px 0; cursor:pointer; }
+.faq-q{ display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:15.5px; }
+.faq-a{ max-height:0; overflow:hidden; transition:max-height .25s ease; color:var(--text-dim); font-size:14.5px; line-height:1.6; }
+.faq-item.open .faq-a{ max-height:200px; padding-top:12px; }
+.faq-item .chev{ transition:transform .25s ease; color:var(--orange); display:inline-flex; }
+.faq-item.open .chev{ transform:rotate(45deg); }
+
+footer{ border-top:1px solid var(--line-soft); padding:56px 0 30px; }
+.footer-grid{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:36px; margin-bottom:44px; }
+.footer-grid h5{ font-size:13.5px; margin-bottom:14px; color:var(--white); }
+.footer-grid a{ display:block; font-size:13.5px; color:var(--text-dim); margin-bottom:10px; }
+.footer-grid a:hover{ color:var(--orange); }
+.footer-bottom{ display:flex; justify-content:space-between; padding-top:24px; border-top:1px solid var(--line-soft); color:var(--text-dimmer); font-size:13px; flex-wrap:wrap; gap:10px;}
+@media(max-width:800px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
+
+/* ===== AUTH ===== */
+.auth-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px; position:relative; }
+.auth-card{ width:100%; max-width:440px; padding:38px 36px; position:relative; z-index:2; }
+.auth-card .logo{ justify-content:center; margin-bottom:6px; }
+.auth-card h2{ text-align:center; font-size:24px; margin:14px 0 6px; }
+.auth-card p.sub{ text-align:center; color:var(--text-dim); font-size:14px; margin-bottom:26px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:13px; color:var(--text-dim); margin-bottom:7px; font-weight:500; }
+.field input, .field select{
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+  background:rgba(255,255,255,0.04); color:var(--white); font-size:14.5px; font-family:inherit;
+  transition:border-color .15s;
+}
+.field input::placeholder{ color:var(--text-dimmer); }
+.field input:focus, .field select:focus{ border-color:var(--orange); }
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.auth-footer{ text-align:center; margin-top:20px; font-size:13.5px; color:var(--text-dim); }
+.auth-footer a{ color:var(--orange); font-weight:600; }
+.auth-alt-link{ display:block; text-align:right; font-size:12.5px; color:var(--orange); margin:-8px 0 16px; }
+.err-msg{ background:rgba(249,115,22,0.1); border:1px solid rgba(249,115,22,0.3); color:var(--amber); font-size:13px; padding:10px 14px; border-radius:10px; margin-bottom:16px; display:none; }
+
+/* ===== APP SHELL ===== */
+.app-shell{ display:flex; min-height:100vh; }
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--charcoal); border-right:1px solid var(--line-soft);
+  padding:22px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; display:flex; flex-direction:column;
+}
+.sidebar .logo{ padding:6px 10px 22px; font-size:18px; }
+.side-link{
+  display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; font-size:14px; font-weight:500;
+  color:var(--text-dim); margin-bottom:3px; transition:all .15s;
+}
+.side-link .ic{ width:18px; text-align:center; opacity:.8; display:inline-flex; justify-content:center; }
+.side-link:hover{ background:rgba(255,255,255,0.05); color:var(--white); }
+.side-link.active{ background:var(--grad-btn); color:var(--black); font-weight:600; }
+.side-link.active .ic{ opacity:1; }
+.side-group-label{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dimmer); padding:16px 14px 6px; }
+.sidebar-foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--line-soft); }
+.user-chip{ display:flex; align-items:center; gap:10px; padding:10px; border-radius:10px; }
+.user-chip:hover{ background:rgba(255,255,255,0.05); }
+.avatar-circle{ width:36px; height:36px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13.5px; flex-shrink:0; }
+.user-chip .name{ font-size:13.5px; font-weight:600; }
+.user-chip .sub{ font-size:11.5px; color:var(--text-dimmer); }
+
+.main-area{ flex:1; min-width:0; }
+.topbar{ display:flex; justify-content:space-between; align-items:center; padding:20px 34px; border-bottom:1px solid var(--line-soft); position:sticky; top:0; background:rgba(18,18,18,.85); backdrop-filter:blur(10px); z-index:10; }
+.topbar h2{ font-size:20px; }
+.topbar-right{ display:flex; gap:14px; align-items:center; }
+.icon-btn{ width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:15px; position:relative; }
+.icon-btn:hover{ background:rgba(255,255,255,0.09); }
+.notif-dot{ position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:var(--orange); }
+.page-body{ padding:30px 34px 60px; }
+
+/* ===== Dashboard ===== */
+.welcome-card{ padding:30px 32px; margin-bottom:26px; position:relative; overflow:hidden; }
+.welcome-card::before{ content:''; position:absolute; inset:0; background:var(--grad); opacity:.14; }
+.welcome-card h2{ font-size:23px; margin-bottom:6px; position:relative; display:flex; align-items:center; gap:10px; }
+.welcome-card p{ color:var(--text-dim); position:relative; font-size:14.5px; }
+.stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px; }
+@media(max-width:1000px){ .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat-card{ padding:20px; }
+.stat-card .top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+.stat-card .ic{ width:34px; height:34px; border-radius:9px; background:rgba(249,115,22,0.12); color:var(--orange); display:flex; align-items:center; justify-content:center; font-size:15px;}
+.stat-card .ic [data-lucide]{ stroke:var(--orange); width:17px; height:17px; }
+.stat-card .val{ font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; }
+.stat-card .lbl{ font-size:12.5px; color:var(--text-dim); margin-top:2px; }
+.stat-card .delta{ font-size:11.5px; color:#4ADE80; margin-top:6px; }
+
+.section-title-row{ display:flex; justify-content:space-between; align-items:center; margin:34px 0 16px; }
+.section-title-row h3{ font-size:17px; }
+.section-title-row a{ font-size:13px; color:var(--orange); font-weight:600; }
+
+.quick-actions{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+@media(max-width:900px){ .quick-actions{ grid-template-columns:repeat(2,1fr); } }
+.qa-card{ padding:22px 18px; text-align:center; transition:.2s; cursor:pointer; }
+.qa-card:hover{ transform:translateY(-4px); border-color:rgba(249,115,22,.4); }
+.qa-card .ic{ width:42px; height:42px; margin:0 auto 12px; border-radius:11px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-size:18px; }
+.qa-card .ic [data-lucide]{ stroke:var(--white); }
+.qa-card span{ font-size:13.5px; font-weight:600; }
+
+.progress-bar{ height:8px; border-radius:6px; background:rgba(255,255,255,0.07); overflow:hidden; }
+.progress-fill{ height:100%; background:var(--grad-btn); border-radius:6px; transition:width .4s ease; }
+
+/* ===== Upload ===== */
+.dropzone{
+  border:2px dashed var(--line); border-radius:18px; padding:60px 30px; text-align:center;
+  transition:.2s; cursor:pointer; background:rgba(255,255,255,0.02);
+}
+.dropzone:hover, .dropzone.drag{ border-color:var(--orange); background:rgba(249,115,22,0.05); }
+.dropzone .ic-big{ font-size:44px; margin-bottom:16px; color:var(--orange); }
+.dropzone h3{ font-size:18px; margin-bottom:6px; }
+.dropzone p{ color:var(--text-dim); font-size:13.5px; }
+.upload-row{ display:flex; align-items:center; gap:16px; padding:16px 18px; margin-top:14px; }
+.upload-row .fico{ width:40px; height:40px; border-radius:10px; background:rgba(249,115,22,0.12); color:var(--orange); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.upload-row .fico [data-lucide]{ stroke:var(--orange); }
+.upload-row .meta b{ display:block; font-size:14px; }
+.upload-row .meta span{ font-size:12px; color:var(--text-dimmer); }
+.upload-row .bar-wrap{ flex:1; }
+
+/* processing steps */
+.proc-step{ display:flex; align-items:center; gap:14px; padding:10px 0; font-size:13.5px; color:var(--text-dimmer); }
+.proc-step.active{ color:var(--white); }
+.proc-step.done{ color:#4ADE80; }
+.proc-dot{ width:22px; height:22px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; }
+.proc-step.active .proc-dot{ border-color:var(--orange); }
+.proc-step.done .proc-dot{ border-color:#4ADE80; background:#4ADE80; color:var(--black); }
+.proc-step.done .proc-dot [data-lucide]{ stroke:var(--black); }
+
+/* ===== Cards misc ===== */
+.opt-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; }
+.opt-chip{ padding:13px; text-align:center; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,0.03); font-size:14px; font-weight:600; transition:.15s; }
+.opt-chip.sel{ border-color:var(--orange); background:rgba(249,115,22,0.12); color:var(--amber); }
+.opt-chip:hover{ border-color:rgba(249,115,22,.5); }
+
+/* Quiz session */
+.quiz-progress-wrap{ display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+.quiz-progress-wrap .progress-bar{ flex:1; }
+.qcount{ font-size:13px; color:var(--text-dim); white-space:nowrap; font-family:'JetBrains Mono',monospace; }
+.timer{ font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--amber); background:rgba(249,115,22,0.1); padding:6px 14px; border-radius:999px; border:1px solid rgba(249,115,22,.25); display:inline-flex; align-items:center; gap:6px; }
+.timer [data-lucide]{ width:14px; height:14px; }
+.question-card{ padding:34px; margin-bottom:20px; }
+.question-card h3{ font-size:20px; line-height:1.5; margin-bottom:24px; }
+.choice{ display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:12px; border:1.5px solid var(--line); margin-bottom:12px; transition:.15s; cursor:pointer; }
+.choice:hover{ border-color:rgba(249,115,22,.5); background:rgba(255,255,255,0.02); }
+.choice.selected{ border-color:var(--orange); background:rgba(249,115,22,0.1); }
+.choice.correct{ border-color:#4ADE80; background:rgba(74,222,128,0.1); }
+.choice.wrong{ border-color:#F87171; background:rgba(248,113,113,0.1); }
+.choice .letter{ width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700; flex-shrink:0; font-family:'JetBrains Mono',monospace; }
+.choice.selected .letter{ background:var(--orange); color:var(--black); }
+.quiz-nav{ display:flex; justify-content:space-between; }
+
+/* Results */
+.score-ring-wrap{ display:flex; justify-content:center; margin:10px 0 26px; }
+.score-ring{ width:180px; height:180px; border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; }
+.score-ring .inner{ position:relative; z-index:2; text-align:center; }
+.score-ring .inner b{ font-family:'Space Grotesk',sans-serif; font-size:40px; display:block; }
+.score-ring .inner span{ font-size:12.5px; color:var(--text-dim); }
+.result-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:24px 0; }
+@media(max-width:700px){ .result-stats{ grid-template-columns:repeat(2,1fr);} }
+.rstat{ text-align:center; padding:16px; }
+.rstat b{ display:block; font-size:21px; font-family:'Space Grotesk',sans-serif; }
+.rstat span{ font-size:12px; color:var(--text-dim); }
+.feedback-box{ padding:20px 22px; border-radius:14px; background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,.25); margin:22px 0; }
+.feedback-box b{ display:flex; align-items:center; gap:8px; }
+.tag-list{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.tag{ padding:5px 13px; background:rgba(255,255,255,0.06); border-radius:999px; font-size:12.5px; }
+
+/* Flashcards */
+.flash-toolbar{ display:flex; gap:12px; margin-bottom:22px; flex-wrap:wrap; align-items:center; }
+.search-input{ flex:1; min-width:180px; padding:11px 16px; border-radius:10px; border:1px solid var(--line); background:rgba(255,255,255,0.04); color:#fff; font-size:13.5px; }
+.flash-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+@media(max-width:900px){ .flash-grid{ grid-template-columns:1fr 1fr; } }
+@media(max-width:600px){ .flash-grid{ grid-template-columns:1fr; } }
+.flashcard{ perspective:1200px; height:190px; }
+.flashcard-inner{ position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d; cursor:pointer; }
+.flashcard.flipped .flashcard-inner{ transform:rotateY(180deg); }
+.flashcard-face{ position:absolute; inset:0; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:center; backface-visibility:hidden; border:1px solid var(--line); }
+.flashcard-face.front{ background:linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); }
+.flashcard-face.back{ background:linear-gradient(160deg, rgba(249,115,22,0.16), rgba(249,115,22,0.04)); transform:rotateY(180deg); }
+.flashcard-face .cat{ font-size:11px; color:var(--orange); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+.flashcard-face p{ font-size:14.5px; line-height:1.5; }
+.flashcard-face .fico-row{ position:absolute; bottom:12px; right:14px; display:flex; gap:10px; }
+.flashcard-face .fico-row span{ font-size:14px; opacity:.7; display:inline-flex; }
+.flashcard-face .fico-row span [data-lucide]{ width:16px; height:16px; }
+.flashcard-face .fico-row span.on{ opacity:1; color:var(--orange); }
+.flashcard-face .fico-row span.on [data-lucide]{ stroke:var(--orange); }
+
+/* Analytics / Charts */
+.chart-card{ padding:22px; }
+.chart-card h4{ font-size:14.5px; margin-bottom:16px; color:var(--text-dim); font-weight:600; }
+.bars{ display:flex; align-items:flex-end; gap:10px; height:160px; }
+.bars .bar{ flex:1; background:var(--grad-btn); border-radius:6px 6px 0 0; position:relative; min-height:4px; }
+.bars .bar span{ position:absolute; bottom:-22px; left:0; right:0; text-align:center; font-size:11px; color:var(--text-dimmer); }
+.donut{ width:150px; height:150px; border-radius:50%; margin:0 auto; }
+.legend{ display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+.legend .li{ display:flex; align-items:center; gap:8px; font-size:13px; }
+.legend .dot{ width:10px; height:10px; border-radius:3px; }
+
+/* table */
+.table-wrap{ overflow-x:auto; }
+table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+th{ text-align:left; padding:12px 14px; color:var(--text-dim); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--line); }
+td{ padding:14px; border-bottom:1px solid var(--line-soft); }
+tr:hover td{ background:rgba(255,255,255,0.02); }
+.badge{ padding:4px 11px; border-radius:999px; font-size:11.5px; font-weight:600; }
+.badge.easy{ background:rgba(74,222,128,.12); color:#4ADE80; }
+.badge.medium{ background:rgba(251,191,36,.12); color:#FBBF24; }
+.badge.hard{ background:rgba(248,113,113,.12); color:#F87171; }
+.badge.mixed{ background:rgba(249,115,22,.12); color:var(--amber); }
+
+/* Toast */
+.toast-wrap{ position:fixed; top:20px; right:20px; z-index:999; display:flex; flex-direction:column; gap:10px; }
+.toast{ padding:14px 20px; border-radius:12px; background:var(--charcoal); border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.4); font-size:13.5px; display:flex; align-items:center; gap:10px; animation:toastIn .3s ease; min-width:240px; }
+@keyframes toastIn{ from{ opacity:0; transform:translateX(30px);} to{opacity:1; transform:none;} }
+
+/* Empty state */
+.empty{ text-align:center; padding:60px 20px; color:var(--text-dim); }
+.empty .ic{ font-size:38px; margin-bottom:14px; color:var(--orange); display:flex; justify-content:center; }
+
+/* misc */
+.flex-between{ display:flex; justify-content:space-between; align-items:center; }
+.mb-8{margin-bottom:8px;} .mb-16{margin-bottom:16px;} .mb-24{margin-bottom:24px;}
+.text-dim{ color:var(--text-dim); }
+.small{ font-size:12.5px; }
+.hidden{ display:none !important; }
+
+@media(max-width:900px){
+  .grid-2{ grid-template-columns:1fr; }
+  .stats-grid{ grid-template-columns:1fr 1fr; }
+  .sidebar{ position:fixed; left:-260px; z-index:80; transition:left .25s; box-shadow:20px 0 60px rgba(0,0,0,.5);}
+  .sidebar.open{ left:0; }
+  .page-body{ padding:22px 18px 60px; }
+  .topbar{ padding:16px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ============ LANDING PAGE ============ -->
+<div class="view active" id="view-landing">
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo">
+        <svg class="logo-mark" viewBox="0 0 40 40"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#121212"/><stop offset="1" stop-color="#F97316"/></linearGradient></defs>
+        <rect width="40" height="40" rx="10" fill="url(#lg1)"/>
+        <path d="M10 26 V14 a3 3 0 0 1 3-3 h6" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8"/>
+        <circle class="node pulse" cx="13" cy="14" r="3"/>
+        <circle class="node pulse" cx="24" cy="11" r="3"/>
+        <circle class="node pulse" cx="29" cy="20" r="3"/>
+        <circle class="node pulse" cx="20" cy="27" r="3"/>
+        <path d="M13 14 L24 11 L29 20 L20 27 L13 14" stroke="#FB923C" stroke-width="1.2" fill="none" opacity=".6"/>
+        </svg>
+        <span>Quizify</span>
+      </div>
+      <div class="nav-links" id="navLinksDesktop">
+        <a href="#features">Features</a>
+        <a href="#how">How it Works</a>
+        <a href="#benefits">Benefits</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-cta">
+        <button class="btn btn-ghost btn-sm" onclick="go('login')">Log In</button>
+        <button class="btn btn-primary btn-sm" onclick="go('register')">Start Studying</button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <svg class="circuit-bg" viewBox="0 0 1180 400" preserveAspectRatio="none">
+      <path d="M0 60 H200 V140 H420" stroke="#F97316" stroke-width="1" fill="none"/>
+      <path d="M1180 100 H950 V40 H760" stroke="#FB923C" stroke-width="1" fill="none"/>
+      <path d="M0 320 H180 V260 H360" stroke="#F97316" stroke-width="1" fill="none"/>
+      <circle cx="200" cy="60" r="3" fill="#F97316"/><circle cx="420" cy="140" r="3" fill="#FB923C"/>
+      <circle cx="950" cy="100" r="3" fill="#F97316"/><circle cx="760" cy="40" r="3" fill="#FB923C"/>
+      <circle cx="180" cy="320" r="3" fill="#F97316"/><circle cx="360" cy="260" r="3" fill="#FB923C"/>
+    </svg>
+    <div class="hero-content">
+      <span class="pill"><i data-lucide="sparkles"></i> AI-Powered Reviewer for Students</span>
+      <h1>Study Smarter <span class="grad-text">with AI.</span></h1>
+      <p class="sub">Upload your module and instantly generate quizzes and flashcards to master your lessons. Built for students.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="go('register')">Start Studying →</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See How it Works</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b>Upload</b><span>Your module PDFs</span></div>
+        <div class="hero-stat"><b>Generate</b><span>Quizzes & flashcards</span></div>
+        <div class="hero-stat"><b>Master</b><span>Track your real progress</span></div>
+      </div>
+    </div>
+
+    <div class="mock-window">
+      <div class="mock-titlebar"><div class="mock-dot" style="background:#F87171"></div><div class="mock-dot" style="background:#FBBF24"></div><div class="mock-dot" style="background:#4ADE80"></div></div>
+      <div class="mock-body">
+        <div class="grid-2" style="align-items:center;">
+          <div>
+            <p class="section-label">Quiz Session</p>
+            <h3 style="margin:10px 0;font-size:20px;">What is an Algorithm?</h3>
+            <div class="choice"><div class="letter">A</div><span>Database</span></div>
+            <div class="choice"><div class="letter">B</div><span>Programming Language</span></div>
+            <div class="choice correct"><div class="letter">C</div><span>Step-by-step procedure for solving a problem</span></div>
+            <div class="choice"><div class="letter">D</div><span>Operating System</span></div>
+          </div>
+          <div class="card" style="padding:22px;">
+            <p class="section-label">Study Streak</p>
+            <div style="font-family:'Space Grotesk';font-size:22px;margin:10px 0;display:flex;align-items:center;gap:10px;"><i data-lucide="flame" style="width:24px;height:24px;stroke:var(--orange);"></i> Build a daily habit</div>
+            <p class="small text-dim">Complete a quiz every day to keep your streak alive.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="container">
+      <div class="section-head"><span class="section-label">Features</span><h2>Everything you need to <span class="grad-text">master your modules</span></h2><p>From raw PDFs to personalized study tools — Quizify handles the heavy lifting so you can focus on learning.</p></div>
+      <div class="grid-3">
+        <div class="card feature-card"><div class="feature-icon"><i data-lucide="file-text"></i></div><h3>Smart PDF Upload</h3><p>Drag and drop any module PDF up to 30MB — Quizify extracts and organizes the content automatically.</p></div>
+        <div class="card feature-card"><div class="feature-icon"><i data-lucide="brain-circuit"></i></div><h3>AI Quiz Generator</h3><p>Generate 10, 20, or 30 questions in multiple choice, true/false, or identification format — at your chosen difficulty.</p></div>
+        <div class="card feature-card"><div class="feature-icon"><i data-lucide="layers"></i></div><h3>AI Flashcards</h3><p>Key concepts turned into flippable flashcards you can shuffle, bookmark, and mark as mastered.</p></div>
+        <div class="card feature-card"><div class="feature-icon"><i data-lucide="bar-chart-3"></i></div><h3>Score Monitoring</h3><p>Track every attempt — accuracy, improvement over time, and subject-by-subject performance.</p></div>
+        <div class="card feature-card"><div class="feature-icon"><i data-lucide="flame"></i></div><h3>Daily Streaks</h3><p>Build consistent study habits with streak tracking and badge rewards for showing up every day.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="background:var(--charcoal);">
+    <div class="container">
+      <div class="section-head"><span class="section-label">Process</span><h2>How Quizify Works</h2><p>From module to mastery in four steps.</p></div>
+      <div class="grid-2">
+        <div>
+          <div class="steps">
+            <div class="step-row"><div class="step-num">01</div><div><h4>Upload your module</h4><p>Drag in a PDF module for any of your subjects.</p></div></div>
+            <div class="step-row"><div class="step-num">02</div><div><h4>AI reads & understands it</h4><p>Quizify extracts the text, identifies chapters, and detects key concepts.</p></div></div>
+            <div class="step-row"><div class="step-num">03</div><div><h4>Get quizzes & flashcards</h4><p>Choose your question count, type, and difficulty — instantly generated.</p></div></div>
+            <div class="step-row"><div class="step-num">04</div><div><h4>Track your progress</h4><p>Review scores, follow streaks, and monitor your study analytics.</p></div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:26px;">
+          <p class="section-label mb-16">AI Processing</p>
+          <div class="proc-step done"><div class="proc-dot"><i data-lucide="check"></i></div>Extracting text from PDF</div>
+          <div class="proc-step done"><div class="proc-dot"><i data-lucide="check"></i></div>Cleaning formatting</div>
+          <div class="proc-step done"><div class="proc-dot"><i data-lucide="check"></i></div>Identifying chapters</div>
+          <div class="proc-step active"><div class="proc-dot"><i data-lucide="loader-circle"></i></div>Detecting important concepts</div>
+          <div class="proc-step"><div class="proc-dot"></div>Summarizing key ideas</div>
+          <div class="proc-step"><div class="proc-dot"></div>Generating quiz questions</div>
+          <div class="proc-step"><div class="proc-dot"></div>Generating flashcards</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="benefits">
+    <div class="container">
+      <div class="section-head"><span class="section-label">Benefits</span><h2>Built for students</h2></div>
+      <div class="grid-4">
+        <div class="card feature-card"><div class="feature-icon" style="width:36px;height:36px;border-radius:10px;"><i data-lucide="timer" style="width:17px;height:17px;"></i></div><h3 style="font-size:15.5px;">Saves Study Time</h3><p>No more manually making reviewers from scratch.</p></div>
+        <div class="card feature-card"><div class="feature-icon" style="width:36px;height:36px;border-radius:10px;"><i data-lucide="target" style="width:17px;height:17px;"></i></div><h3 style="font-size:15.5px;">Targeted Review</h3><p>AI recommendations point you to your weak topics.</p></div>
+        <div class="card feature-card"><div class="feature-icon" style="width:36px;height:36px;border-radius:10px;"><i data-lucide="trending-up" style="width:17px;height:17px;"></i></div><h3 style="font-size:15.5px;">Visible Progress</h3><p>Watch your accuracy and scores improve week over week.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" style="background:var(--charcoal);">
+    <div class="container">
+      <div class="section-head"><span class="section-label">Testimonials</span><h2>What students are saying</h2></div>
+      <div class="grid-3">
+        <div class="card testimonial-card"><p>"I used to make my own reviewers by hand. Now I upload the module and I'm quizzing myself in under two minutes."</p><div class="t-person"><div class="t-avatar">JM</div><div><b>J.M.</b><span>Student</span></div></div></div>
+        <div class="card testimonial-card"><p>"The streak feature is honestly what keeps me consistent. I haven't missed a day in three weeks."</p><div class="t-person"><div class="t-avatar">RA</div><div><b>R.A.</b><span>Student</span></div></div></div>
+        <div class="card testimonial-card"><p>"My Discrete Structures average jumped from 68% to 84% after two weeks of using the flashcards daily."</p><div class="t-person"><div class="t-avatar">KL</div><div><b>K.L.</b><span>Student</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="container" style="max-width:760px;">
+      <div class="section-head"><span class="section-label">FAQ</span><h2>Frequently asked questions</h2></div> 
+
+     <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What is Quizify?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Quizify is an AI-powered study platform that helps students review by generating quizzes and flashcards from uploaded PDF modules.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How do I start studying?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Simply upload a PDF module, wait for the AI to process it, then start answering quizzes or reviewing flashcards.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What file format can I upload?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Quizify currently supports PDF files containing your study modules or lecture materials.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How long does it take to generate quizzes?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Generation usually takes only a few moments, depending on the size and complexity of your uploaded PDF.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I generate flashcards too?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. Quizify automatically creates flashcards from your uploaded module to help you memorize important concepts.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Does Quizify save my progress?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. Your completed quizzes, study streak, and learning activity are automatically saved to your account.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How are my dashboard statistics calculated?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Your dashboard reflects your actual study activity, including completed quizzes, flashcards reviewed, scores, and study streak. Quizify does not generate or estimate results.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I retake a quiz?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. You can retake quizzes anytime to improve your understanding and track your progress.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What happens if I miss a day?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Missing a day without completing at least one quiz will reset your study streak to zero.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I upload the same PDF again?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. You may upload the same module again if you want to regenerate study materials or review the content.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What if my PDF cannot be processed?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Ensure that your PDF is readable, contains selectable text, and is not password-protected. Scanned images may not generate accurate study materials.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I access my uploaded modules later?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. Your uploaded modules remain available in your account, allowing you to review them again whenever needed.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Is there a limit to the number of PDFs I can upload?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">The upload limit depends on the system's current storage policy. If a limit is reached, you may need to remove older modules before uploading new ones.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I use Quizify on my phone?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. Quizify is designed to work on desktops, tablets, and most modern mobile browsers.</div>
+</div>
+
+<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Is my uploaded data secure?<span class="chev"><i data-lucide="plus"></i></span></div>
+    <div class="faq-a">Yes. Your uploaded modules and study records are stored securely and are only accessible through your account.</div>
+</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><div class="logo" style="margin-bottom:10px;"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/><path d="M13 14 L24 11 L29 20 L20 27 L13 14" stroke="#FB923C" stroke-width="1.2" fill="none" opacity=".6"/></svg><span>Quizify</span></div><p class="text-dim small" style="max-width:260px;">Upload. Learn. Master. An AI-powered reviewer built for students.</p></div>
+        <div><h5>Product</h5><a href="#features">Features</a><a href="#how">How it Works</a><a href="#faq">FAQ</a></div>
+        <div><h5>Account</h5><a onclick="go('login')">Log In</a><a onclick="go('register')">Register</a></div>
+        <div><h5>Company</h5><a>CCSIT</a><a>Contact</a><a>Privacy</a></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Quizify. A Software Engineering student project.</span><span>Made for Students</span></div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div class="view" id="view-login">
+  <div class="auth-wrap">
+    <div class="hero-bg"></div>
+    <div class="card auth-card">
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
+      <h2>Welcome back</h2>
+      <p class="sub">Log in to continue your learning journey</p>
+      <div class="err-msg" id="loginErr">Invalid email or password.</div>
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="name@gmail.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+      <a class="auth-alt-link" onclick="go('forgot')">Forgot password?</a>
+      <button class="btn btn-primary btn-block" onclick="doLogin()">Log In</button>
+      <div class="auth-footer">Don't have an account? <a onclick="go('register')">Register</a></div>
+      <div class="auth-footer"><a onclick="go('landing')">← Back to home</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ REGISTER ============ -->
+<div class="view" id="view-register">
+  <div class="auth-wrap">
+    <div class="hero-bg"></div>
+    <div class="card auth-card" style="max-width:480px;">
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
+      <h2>Create your account</h2>
+      <p class="sub">Start turning modules into quizzes today</p>
+      <div class="field"><label>Full Name</label><input type="text" id="regName" placeholder="Enter your full name"></div>
+      <div class="field"><label>Email</label><input type="email" id="regEmail" placeholder="name@gmail.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="regPass" placeholder="Create a password"></div>
+      <button class="btn btn-primary btn-block" onclick="doRegister()">Create Account</button>
+      <div class="auth-footer">Already have an account? <a onclick="go('login')">Log In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FORGOT PASSWORD ============ -->
+<div class="view" id="view-forgot">
+  <div class="auth-wrap">
+    <div class="hero-bg"></div>
+    <div class="card auth-card">
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
+      <h2>Reset your password</h2>
+      <p class="sub">Enter your email and we'll send a reset link</p>
+      <div class="field"><label>Email</label><input type="email" placeholder="you@ccsit.edu.ph"></div>
+      <button class="btn btn-primary btn-block" onclick="toast('mail','Reset link sent — check your email.');go('login')">Send Reset Link</button>
+      <div class="auth-footer"><a onclick="go('login')">← Back to log in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div class="view" id="view-app">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40" width="30" height="30"><rect width="40" height="40" rx="10" fill="#F97316"/><circle cx="13" cy="14" r="3" fill="#121212"/><circle cx="24" cy="11" r="3" fill="#121212"/><circle cx="29" cy="20" r="3" fill="#121212"/><circle cx="20" cy="27" r="3" fill="#121212"/></svg><span>Quizify</span></div>
+
+      <a class="side-link" data-p="dashboard" onclick="showPage('dashboard')"><span class="ic"><i data-lucide="layout-dashboard"></i></span>Dashboard</a>
+      <a class="side-link" data-p="upload" onclick="showPage('upload')"><span class="ic"><i data-lucide="upload"></i></span>Upload Module</a>
+      <a class="side-link" data-p="quizSetup" onclick="showPage('quizSetup')"><span class="ic"><i data-lucide="brain-circuit"></i></span>Generate Quiz</a>
+      <a class="side-link" data-p="flashcards" onclick="showPage('flashcards')"><span class="ic"><i data-lucide="layers"></i></span>Flashcard Library</a>
+      <a class="side-link" data-p="history" onclick="showPage('history')"><span class="ic"><i data-lucide="history"></i></span>Quiz History</a>
+      <a class="side-link" data-p="analytics" onclick="showPage('analytics')"><span class="ic"><i data-lucide="bar-chart-3"></i></span>Study Analytics</a>
+
+      <div class="side-group-label" id="adminGroupLabel">Administrator</div>
+      <a class="side-link" data-p="admin" onclick="showPage('admin')" id="adminLink"><span class="ic"><i data-lucide="shield"></i></span>Admin Panel</a>
+
+      <div class="sidebar-foot">
+        <div class="user-chip" onclick="toggleDropdown()" style="cursor:pointer;position:relative;">
+          <div class="avatar-circle" id="sideAvatar">?</div>
+          <div><div class="name" id="sideName">Student</div><div class="sub" id="sideSub">—</div></div>
+        </div>
+        <button class="btn btn-ghost btn-sm btn-block" style="margin-top:10px;" onclick="doLogout()">Log Out</button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <div class="topbar">
+        <button class="btn btn-ghost btn-sm" id="mobileMenuBtn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;"><i data-lucide="menu" style="width:16px;height:16px;"></i></button>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-right">
+          <button class="icon-btn" onclick="toggleDropdown()" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+          <button class="icon-btn" onclick="toast('moon','Light mode coming soon — dark mode is default.')" title="Toggle theme"><i data-lucide="moon"></i></button>
+        </div>
+      </div>
+      <div class="page-body" id="pageBody"><!-- injected --></div>
+    </main>
+  </div>
+</div>
+
+<script>
+/* Prevent the browser's default "open dropped file as a page" behavior
+   anywhere outside our specific dropzone — without this, a file dropped
+   even slightly off-target replaces the whole page and wipes app state. */
+document.addEventListener('dragover', function(e){ e.preventDefault(); });
+document.addEventListener('drop', function(e){ e.preventDefault(); });
+
+/* ================= ICON HELPERS (Lucide) ================= */
+/* Maps the short "icon name" strings used around the app (kept from the
+   original emoji-based code) to real Lucide icon names, so dynamically
+   generated markup can request an icon by intent and get a real glyph. */
+const ICONS = {
+  pdf:'file-text', quiz:'brain-circuit', flashcards:'layers', check:'check-circle-2',
+  fire:'flame', target:'target', star:'star', clock:'timer', calendar:'calendar-days',
+  chart:'bar-chart-3', bell:'bell', moon:'moon', bookmark:'bookmark', mastered:'check-circle-2',
+  trash:'trash-2', edit:'pencil', add:'plus', success:'check-circle-2', warn:'triangle-alert',
+  mail:'mail', wave:'hand', party:'party-popper', trend:'trending-up', book:'book-open',
+  folder:'folder', history:'history', shield:'shield', users:'users', download:'download',
+  refresh:'refresh-cw', unlink:'link-2-off',
+};
+function iconHTML(name, size){
+  const real = ICONS[name] || name;
+  return `<i data-lucide="${real}"${size?` style="width:${size}px;height:${size}px;"`:''}></i>`;
+}
+function refreshIcons(){ if(window.lucide) lucide.createIcons(); }
+
+/* ================= API CONFIG ================= */
+const API_BASE = 'http://localhost:8000';
+let authToken = null; // set after login/register
+
+async function apiFetch(path, options = {}) {
+  const headers = Object.assign({}, options.headers || {});
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  if (options.body && !(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+  const res = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) {
+    const msg = (data && (data.detail || (Array.isArray(data.detail) && data.detail[0] && data.detail[0].msg)))
+      || ('Request failed (' + res.status + ')');
+    throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+  }
+  return data;
+}
+
+/* ================= STATE ================= */
+const state = {
+  user: { studentNo:null, name:'', course:null, year:null, email:'', isAdmin:false, avatarInitials:'' },
+  stats: { pdfs:0, quizzes:0, flashcards:0, questions:0, streak:0, accuracy:0, avgScore:0, studyTime:'0h 0m' },
+  analytics: null,
+  adminStats: { total_students:0, total_pdfs:0, total_quizzes:0, total_flashcards:0, most_active_students:[], most_studied_subject:null },
+  uploads: [],
+  history: [],
+};
+
+let ui = {
+  quizCount:10, quizDifficulty:'Medium', quizTypes:['Multiple Choice'],
+  quizPdfId:null, activeQuiz:null, qIndex:0, answersMap:{}, quizStartTime:null, lastResult:null,
+  fcSubjectFilter:'', fcSearch:'', fcCards:[], fcFlipped:new Set(), fcCount:10,
+};
+function rerenderIfCurrent(page){
+  if(currentPage===page){ document.getElementById('pageBody').innerHTML = renderers[page](); refreshIcons(); }
+}
+/* ================= NAV / VIEW SWITCHING ================= */
+function go(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  window.scrollTo(0,0);
+  refreshIcons();
+}
+function applyStudentToState(student){
+  state.user.studentNo = student.student_number;
+  state.user.name = student.full_name;
+  state.user.course = student.course;
+  state.user.year = student.year_level;
+  state.user.email = student.email;
+  state.user.isAdmin = student.is_admin;
+  state.user.avatarInitials = student.full_name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  const errBox = document.getElementById('loginErr');
+  if(!email || !pass){ errBox.textContent='Please enter your email and password.'; errBox.style.display='block'; return; }
+  errBox.style.display='none';
+  try{
+    const data = await apiFetch('/auth/login', {
+      method:'POST',
+      body: JSON.stringify({ email:email, password:pass })
+    });
+    authToken = data.access_token;
+    applyStudentToState(data.student);
+    enterApp();
+    if(state.user.isAdmin) showPage('admin');
+  }catch(err){
+    errBox.textContent = err.message || 'Invalid email or password.';
+    errBox.style.display='block';
+  }
+}
+
+async function doRegister(){
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  if(!name || !email || !pass){ toast('warn','Please fill in all fields.'); return; }
+  try{
+    const data = await apiFetch('/auth/register', {
+      method:'POST',
+      body: JSON.stringify({
+        full_name: name,
+        email: email,
+        password: pass
+      })
+    });
+    authToken = data.access_token;
+    applyStudentToState(data.student);
+    toast('party','Account created! Welcome to Quizify.');
+    enterApp();
+  }catch(err){
+    toast('warn', err.message || 'Registration failed.');
+  }
+}
+
+function doLogout(){
+  authToken = null;
+  // Reset to pristine empty state so the next login shows only real data
+  state.user = { studentNo:null, name:'', course:null, year:null, email:'', isAdmin:false, avatarInitials:'' };
+  state.stats = { pdfs:0, quizzes:0, flashcards:0, questions:0, streak:0, accuracy:0, avgScore:0, studyTime:'0h 0m' };
+  state.analytics = null;
+  state.adminStats = { total_students:0, total_pdfs:0, total_quizzes:0, total_flashcards:0, most_active_students:[], most_studied_subject:null };
+  state.uploads = [];
+  state.history = [];
+  toast('wave','Logged out successfully.');
+  go('landing');
+}
+function enterApp(){
+  document.getElementById('sideAvatar').textContent = state.user.avatarInitials || '?';
+  document.getElementById('sideName').textContent = state.user.name || 'Student';
+  const sub = (state.user.course && state.user.year) ? (state.user.course+' · '+state.user.year) : (state.user.email || '');
+  document.getElementById('sideSub').textContent = sub;
+  document.getElementById('adminGroupLabel').style.display = state.user.isAdmin ? 'block':'none';
+  document.getElementById('adminLink').style.display = state.user.isAdmin ? 'flex':'none';
+  go('app');
+  showPage('dashboard');
+}
+function toggleDropdown(){ toast('bell','No new notifications.'); }
+
+/* Responsive sidebar button */
+function checkMobile(){ document.getElementById('mobileMenuBtn').style.display = window.innerWidth<=900 ? 'inline-flex':'none'; }
+window.addEventListener('resize', checkMobile); checkMobile();
+
+/* ================= TOASTS ================= */
+function toast(icon,msg){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className='toast'; t.innerHTML = `<span>${iconHTML(icon)}</span><span>${msg}</span>`;
+  wrap.appendChild(t);
+  refreshIcons();
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(30px)'; t.style.transition='.3s'; setTimeout(()=>t.remove(),300); }, 3400);
+}
+
+/* ================= PAGE ROUTER ================= */
+const pageTitles = { dashboard:'Dashboard', upload:'Upload Module', quizSetup:'Generate Quiz', quizSession:'Quiz Session', quizResults:'Quiz Results', flashcards:'Flashcard Library', history:'Quiz History', analytics:'Study Analytics', admin:'Admin Panel' };
+let currentPage = 'dashboard';
+function showPage(page){
+  currentPage = page;
+  document.querySelectorAll('.side-link').forEach(l=>l.classList.toggle('active', l.dataset.p===page));
+  document.getElementById('pageTitle').textContent = pageTitles[page] || 'Quizify';
+  document.getElementById('pageBody').innerHTML = renderers[page] ? renderers[page]() : '<p>Not found</p>';
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo(0,0);
+  refreshIcons();
+  // Load real data on-demand for each page (never fabricated values)
+  if(page==='dashboard'){ loadDashboardStats(); loadUploads(); }
+  if(page==='upload') loadUploads();
+  if(page==='quizSetup') loadUploads();
+  if(page==='history') loadHistory();
+  if(page==='flashcards'){ loadFlashcards(); loadUploads(); }
+  if(page==='analytics') loadAnalytics();
+  if(page==='admin') loadAdminDashboard();
+}
+
+/* ================= RENDERERS ================= */
+const renderers = {
+  dashboard(){
+    const s = state.stats;
+    const a = state.analytics;
+    const uploadsHtml = state.uploads.length
+      ? state.uploads.slice(0,5).map(u=>`
+      <div class="upload-row" style="border-bottom:1px solid var(--line-soft);">
+        <div class="fico">${iconHTML('pdf')}</div>
+        <div class="meta" style="flex:1;"><b>${u.name}</b><span>${u.subject || 'No subject'} · ${u.date} · ${u.size}</span></div>
+        <button class="btn btn-outline-orange btn-sm" onclick="showPage('quizSetup')">Generate Quiz</button>
+      </div>`).join('')
+      : `<div class="empty" style="padding:30px 20px;"><div class="ic">${iconHTML('upload',30)}</div><p>No PDFs uploaded yet. Upload a module to get started.</p><button class="btn btn-primary btn-sm" style="margin-top:12px;" onclick="showPage('upload')">Upload Module</button></div>`;
+    const stats = [
+      {ic:'pdf', val:s.pdfs, lbl:'PDFs Uploaded'},
+      {ic:'quiz', val:s.quizzes, lbl:'Quizzes Completed'},
+      {ic:'flashcards', val:s.flashcards, lbl:'Flashcards Generated'},
+      {ic:'success', val:s.questions, lbl:'Questions Answered'},
+      {ic:'fire', val:(s.streak||0)+' Days', lbl:'Current Streak'},
+      {ic:'target', val:(s.accuracy||0)+'%', lbl:'Accuracy Rate'},
+      {ic:'star', val:(s.avgScore||0)+'%', lbl:'Average Quiz Score'},
+      {ic:'clock', val:s.studyTime, lbl:'Study Time This Week'},
+    ];
+    const insights = [];
+    if(a){
+      if(a.strongest_subject) insights.push({ic:'star', label:`Strongest Subject: ${a.strongest_subject}`});
+      if(a.weakest_subject) insights.push({ic:'target', label:`Needs Review: ${a.weakest_subject}`});
+      if(a.ai_insight) insights.push({ic:'trend', label:a.ai_insight});
+    }
+    return `
+    <div class="card welcome-card">
+      <h2>Welcome back, ${state.user.name ? state.user.name.split(' ')[0] : 'Student'}! ${iconHTML('wave',22)}</h2>
+      <p>Ready to continue your learning journey?</p>
+    </div>
+    <div class="stats-grid">
+      ${stats.map(x=>statCard(x.ic,x.val,x.lbl,undefined)).join('')}
+    </div>
+    ${insights.length ? `
+    <div class="section-title-row"><h3>Insights</h3></div>
+    <div class="grid-2" style="margin-bottom:26px;">
+      ${insights.slice(0,2).map(i=>`<div class="card" style="padding:18px 22px;display:flex;align-items:center;gap:12px;"><div class="ic" style="width:34px;height:34px;border-radius:9px;background:rgba(249,115,22,0.12);color:var(--orange);display:flex;align-items:center;justify-content:center;">${iconHTML(i.ic,17)}</div><div style="font-size:13.5px;color:var(--text-dim);">${i.label}</div></div>`).join('')}
+    </div>` : ''}
+    <div class="section-title-row"><h3>Quick Actions</h3></div>
+    <div class="quick-actions">
+      ${qa('upload','Upload Module','upload')}
+      ${qa('quiz','Generate Quiz','quizSetup')}
+      ${qa('flashcards','Flashcard Library','flashcards')}
+      ${qa('history','Quiz History','history')}
+      ${qa('chart','Study Analytics','analytics')}
+    </div>
+    <div class="section-title-row"><h3>Recent Uploads</h3><a onclick="showPage('upload')">View all →</a></div>
+    <div class="card" style="padding:8px 18px;">
+      ${uploadsHtml}
+    </div>`;
+  },
+
+  upload(){
+    return `
+    <div class="grid-2" style="align-items:flex-start;">
+      <div class="card" style="padding:30px;">
+        <p class="section-label mb-16">Upload a New Module</p>
+        <div class="field mb-16">
+          <label>Module / Subject Name</label>
+          <input type="text" id="uploadSubjectInput" placeholder="e.g. Computer Programming 1 - Arrays" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--white);font-size:14.5px;font-family:inherit;">
+        </div>
+        <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none" onchange="handleFileSelected(event)">
+        <div class="dropzone" id="dz" onclick="triggerFilePicker()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleFileDrop(event)">
+          <div class="ic-big">${iconHTML('upload',38)}</div>
+          <h3>Drag & Drop your PDF module</h3>
+          <p>or click to browse files · PDF only · Max 30MB</p>
+        </div>
+        <div id="uploadProgressWrap"></div>
+      </div>
+      <div class="card" style="padding:26px;">
+        <p class="section-label mb-16">Recent Uploads</p>
+        ${state.uploads.length ? state.uploads.map(u=>`
+        <div class="upload-row">
+          <div class="fico">${iconHTML('pdf')}</div>
+          <div class="meta"><b>${u.name}</b><span>${u.subject || 'No subject'} · ${u.date} · ${u.size}</span></div>
+        </div>`).join('') : `
+        <div class="empty" style="padding:24px 16px;"><div class="ic">${iconHTML('upload',28)}</div><p>No uploads yet. Upload your first module on the left.</p></div>`}
+      </div>
+    </div>`;
+  },
+
+ quizSetup(){
+    return `
+    <div class="grid-2" style="align-items:flex-start;">
+      <div class="card" style="padding:30px;">
+        <p class="section-label mb-16">Select Uploaded Module</p>
+        <div class="field mb-24"><select onchange="ui.quizPdfId=this.value?Number(this.value):null">
+          <option value="">— Choose a PDF module —</option>
+          ${state.uploads.map(u=>`<option value="${u.pdf_id}" ${ui.quizPdfId===u.pdf_id?'selected':''}>${u.name} — ${u.subject || 'No subject'}</option>`).join('')}
+        </select></div>
+        ${!state.uploads.length ? `<div class="card empty" style="padding:20px;margin-bottom:16px;"><div class="ic">${iconHTML('upload',28)}</div><p class="text-dim small">No modules uploaded yet. Upload a PDF first.</p><button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="showPage('upload')">Upload Module</button></div>` : ''}
+
+        <p class="section-label mb-16">Number of Questions</p>
+        <div class="opt-grid mb-24">
+          ${[10,20,30].map(n=>`<div class="opt-chip ${ui.quizCount===n?'sel':''}" onclick="ui.quizCount=${n};showPage('quizSetup')">${n} Qs</div>`).join('')}
+        </div>
+
+        <p class="section-label mb-16">Difficulty</p>
+        <div class="opt-grid mb-24">
+          ${['Easy','Medium','Hard','Mixed'].map(d=>`<div class="opt-chip ${ui.quizDifficulty===d?'sel':''}" onclick="ui.quizDifficulty='${d}';showPage('quizSetup')">${d}</div>`).join('')}
+        </div>
+
+        <p class="section-label mb-16">Question Types</p>
+        <div class="opt-grid mb-24">
+          ${['Multiple Choice','True or False','Identification'].map(t=>`<div class="opt-chip ${ui.quizTypes.includes(t)?'sel':''}" onclick="toggleType('${t}')">${t}</div>`).join('')}
+        </div>
+
+        <button class="btn btn-primary btn-block" id="genQuizBtn" onclick="startGeneration()">Generate Quiz ${iconHTML('sparkles',15)}</button>
+      </div>
+      <div class="card" style="padding:26px;">
+        <p class="section-label mb-16">AI Processing Workflow</p>
+        <div id="procSteps">
+          ${['Extract text','Clean formatting','Identify chapters','Detect key concepts','Summarize key ideas','Generate quiz questions','Save & display results'].map((s,i)=>`<div class="proc-step" id="proc-${i}"><div class="proc-dot"></div>${s}</div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  },
+
+ quizSession(){
+    const quiz = ui.activeQuiz;
+    if(!quiz) return emptyState('quiz','No active quiz','Generate a quiz first to start a session.','quizSetup','Generate a Quiz');
+    const qs = quiz.questions;
+    const i = ui.qIndex; const q = qs[i];
+    const pct = Math.round((i/qs.length)*100);
+    const currentAnswer = ui.answersMap[q.question_id];
+    let bodyHtml;
+    if(q.choices && q.choices.length){
+      bodyHtml = q.choices.map((c,ci)=>`
+        <div class="choice ${currentAnswer===c?'selected':''}" onclick="selectAnswerByIndex(${ci})">
+          <div class="letter">${String.fromCharCode(65+ci)}</div><span>${c}</span>
+        </div>`).join('');
+    } else {
+      bodyHtml = `<input type="text" class="search-input" style="width:100%;" placeholder="Type your answer..."
+        value="${currentAnswer||''}" oninput="selectAnswerText(this.value)">`;
+    }
+    return `
+    <div class="quiz-progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+      <span class="qcount">Question ${i+1} of ${qs.length}</span>
+      <span class="timer">${iconHTML('clock')} ${fmtTime(elapsed())}</span>
+    </div>
+    <div class="card question-card">
+      <p class="section-label mb-16">${quiz.subject} · ${quiz.difficulty} · ${q.question_type}</p>
+      <h3>${q.question_text}</h3>
+      ${bodyHtml}
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" ${i===0?'disabled':''} onclick="navQuiz(-1)">← Previous</button>
+      ${i===qs.length-1 ? `<button class="btn btn-primary" onclick="submitQuiz()">Submit Quiz</button>` : `<button class="btn btn-primary" onclick="navQuiz(1)">Next →</button>`}
+    </div>`;
+  },
+
+
+
+flashcards(){
+    const cards = ui.fcCards || [];
+    return `
+    <div class="card" style="padding:20px;margin-bottom:20px;">
+      <p class="section-label mb-16">Generate New Flashcards</p>
+      <div class="grid-2">
+        <div class="field"><select onchange="ui.quizPdfId=this.value?Number(this.value):null">
+          <option value="">— Choose a PDF module —</option>
+          ${state.uploads.map(u=>`<option value="${u.pdf_id}" ${ui.quizPdfId===u.pdf_id?'selected':''}>${u.name} — ${u.subject || 'No subject'}</option>`).join('')}
+        </select></div>
+        <div class="field"><select onchange="ui.fcCount=Number(this.value)">
+          <option value="5">5 cards</option>
+          <option value="10" selected>10 cards</option>
+          <option value="20">20 cards</option>
+        </select></div>
+      </div>
+      <button class="btn btn-primary btn-block" style="margin-top:8px;" onclick="generateFlashcardsNow()">Generate Flashcards ${iconHTML('sparkles',15)}</button>
+    </div>
+    <div class="flash-toolbar">
+      <select onchange="ui.fcSubjectFilter=this.value;loadFlashcards()">
+        <option value="">All Subjects</option>
+        ${[...new Set(state.uploads.map(u=>u.subject).filter(Boolean))].map(s=>`<option ${s===ui.fcSubjectFilter?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <input class="search-input" placeholder="Search flashcards..." value="${ui.fcSearch||''}" oninput="ui.fcSearch=this.value;debouncedFlashSearch()">
+    </div>
+    <div class="flash-grid" id="flashGrid">
+      ${cards.length ? cards.map(c=>flashcardHTML(c)).join('') : `<div class="card empty" style="grid-column:1/-1;"><div class="ic">${iconHTML('flashcards',34)}</div><h3>No flashcards yet</h3><p>Generate some using an uploaded PDF above.</p></div>`}
+    </div>`;
+  },
+  
+  history(){
+    if(!state.history.length){
+      return `<div class="card empty"><div class="ic">${iconHTML('history',34)}</div><h3 style="margin-bottom:8px;">No quiz history yet</h3><p class="mb-16">Complete a quiz and your results will show up here.</p><button class="btn btn-primary" onclick="showPage('quizSetup')">Generate a Quiz</button></div>`;
+    }
+    return `
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>Subject</th><th>Date</th><th>Score</th><th>Difficulty</th><th>Questions</th><th>Time</th></tr></thead>
+        <tbody>
+        ${state.history.map(h=>`
+          <tr><td>${h.subject}</td><td>${h.date}</td><td>${h.score != null ? `${h.score}%` : '—'}</td><td><span class="badge ${String(h.difficulty).toLowerCase()}">${h.difficulty}</span></td><td>${h.qcount}</td><td>${h.time}</td></tr>
+        `).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+  },
+
+quizResults(){
+    const r = ui.lastResult;
+    if(!r) return emptyState('chart','No results yet','Complete a quiz to see your results here.','quizSetup','Generate a Quiz');
+    const pct = r.score;
+    const color = pct>=85?'#4ADE80':(pct>=70?'#FBBF24':'#F87171');
+    const feedbackIcon = pct>=85?'party':(pct>=70?'thumbs-up':'dumbbell');
+    const feedbackTitle = pct>=85?'Excellent!':(pct>=70?'Good job!':'Keep practicing!');
+    return `
+    <div class="card" style="padding:36px;text-align:center;">
+      <p class="section-label mb-16">${ui.activeQuiz ? ui.activeQuiz.subject : ''}</p>
+      <div class="score-ring-wrap"><div class="score-ring" style="background:conic-gradient(${color} ${pct*3.6}deg, rgba(255,255,255,0.07) 0deg);">
+        <div class="inner"><b>${pct}%</b><span>Final Score</span></div>
+      </div></div>
+      <div class="result-stats">
+        <div class="card rstat"><b>${r.correct_count}</b><span>Correct</span></div>
+        <div class="card rstat"><b>${r.wrong_count}</b><span>Wrong</span></div>
+        <div class="card rstat"><b>${r.total}</b><span>Total Qs</span></div>
+        <div class="card rstat"><b>${fmtTime(r.time_taken_seconds)}</b><span>Time Used</span></div>
+      </div>
+      <div class="feedback-box" style="text-align:left;">
+        <b>${iconHTML(feedbackIcon,17)} ${feedbackTitle}</b>
+        <p style="margin-top:6px;font-size:14px;color:var(--text-dim);">${r.feedback}</p>
+        ${r.review_recommendations.length ? `<p class="small text-dim" style="margin-top:10px;">Review Recommendations</p>
+        <div class="tag-list">${r.review_recommendations.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn btn-primary" onclick="showPage('quizSetup')">Generate Another Quiz</button>
+        <button class="btn btn-outline-orange" onclick="showPage('flashcards')">Generate Flashcards</button>
+      </div>
+    </div>`;
+  },
+  
+  analytics(){
+    const a = state.analytics;
+    if(!a){
+      return `<div class="card empty"><div class="ic">${iconHTML('chart',34)}</div><h3 style="margin-bottom:8px;">No analytics yet</h3><p class="mb-16">Complete quizzes and review flashcards to unlock your study analytics.</p><button class="btn btn-primary" onclick="showPage('quizSetup')">Generate a Quiz</button></div>`;
+    }
+    // Weekly scores: use real values, fall back to 0 for days with no data
+    const dayLabels = ['M','T','W','T','F','S','S'];
+    const scores = (a.weekly_scores || []);
+    const barData = dayLabels.map((lbl,i)=>{
+      const entry = scores[i];
+      const val = entry && entry.average_score != null ? entry.average_score : 0;
+      return { lbl, val };
+    });
+
+    // Subject performance list
+    const subjects = a.subject_performance || [];
+    const legendColors = ['#F97316','#FB923C','#F5F5F5','#4ADE80','#60A5FA'];
+    const legendHtml = subjects.length ? subjects.slice(0,5).map((s,i)=>`
+      <div class="li"><div class="dot" style="background:${legendColors[i%legendColors.length]};"></div>${s.subject} — ${s.average_score}% avg (${s.attempts} attempts)</div>
+    `).join('') : `<div class="text-dim small">No subject data yet.</div>`;
+
+    const strong = a.strongest_subject
+      ? `<div class="card" style="padding:22px;"><p class="section-label mb-8">Strongest Subject</p><h3 style="font-size:18px;">${a.strongest_subject}</h3></div>`
+      : `<div class="card" style="padding:22px;"><p class="section-label mb-8">Strongest Subject</p><h3 style="font-size:16px;color:var(--text-dimmer);">No data yet</h3></div>`;
+    const weak = a.weakest_subject
+      ? `<div class="card" style="padding:22px;"><p class="section-label mb-8">Weakest Subject</p><h3 style="font-size:18px;">${a.weakest_subject}</h3></div>`
+      : `<div class="card" style="padding:22px;"><p class="section-label mb-8">Weakest Subject</p><h3 style="font-size:16px;color:var(--text-dimmer);">No data yet</h3></div>`;
+
+    return `
+    <div class="grid-2 mb-24">
+      <div class="card chart-card">
+        <h4>Weekly Quiz Scores</h4>
+        <div class="bars">
+          ${barData.map(d=>`<div class="bar" style="height:${d.val}%;"><span>${d.lbl}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h4>Subject Performance</h4>
+        <div class="legend">
+          ${legendHtml}
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      ${statCard('calendar',a.weekly_study_hours||0,'Weekly Study Hours','')}
+      ${statCard('quiz',a.quizzes_completed||0,'Quizzes Completed','')}
+      ${statCard('flashcards',a.flashcards_reviewed||0,'Flashcards Reviewed','')}
+      ${statCard('target',(a.accuracy_rate||0)+'%','Accuracy Rate','')}
+    </div>
+    <div class="grid-2" style="margin-top:22px;">
+      ${strong}
+      ${weak}
+    </div>
+    <div class="feedback-box" style="margin-top:22px;">
+      <b>${iconHTML('trend',17)} AI Insight</b>
+      <p style="margin-top:6px;font-size:14px;color:var(--text-dim);">${a.ai_insight || 'Complete more quizzes and flashcards to unlock personalized insights.'}</p>
+    </div>`;
+  },
+
+  admin(){
+    const ad = state.adminStats;
+    const activeList = ad.most_active_students && ad.most_active_students.length
+      ? ad.most_active_students.map(s=>`<div class="flex-between" style="padding:10px 0;border-bottom:1px solid var(--line-soft);"><span class="mono">${s.student_number || '—'}</span><span class="text-dim small">${s.quizzes_completed} quizzes</span></div>`).join('')
+      : `<div class="text-dim small" style="padding:10px 0;">No student activity yet.</div>`;
+    return `
+    <div class="stats-grid">
+      ${statCard('users',ad.total_students||0,'Total Students','')}
+      ${statCard('pdf',ad.total_pdfs||0,'Total Uploaded PDFs','')}
+      ${statCard('quiz',ad.total_quizzes||0,'Total Quizzes','')}
+      ${statCard('flashcards',ad.total_flashcards||0,'Total Flashcards','')}
+    </div>
+    <div class="grid-2 mb-24">
+      <div class="card" style="padding:22px;">
+        <p class="section-label mb-16">Most Active Students</p>
+        ${activeList}
+      </div>
+      <div class="card" style="padding:22px;">
+        <p class="section-label mb-16">Most Studied Subject</p>
+        <h3 style="font-size:18px;">${ad.most_studied_subject || 'No data yet'}</h3>
+        <p class="text-dim small" style="margin-top:6px;">Based on quiz attempts across all students</p>
+      </div>
+    </div>
+    <div class="section-title-row"><h3>Manage Uploaded PDFs</h3></div>
+    <div class="card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>File</th><th>Upload Date</th><th></th></tr></thead>
+        <tbody>
+        ${state.uploads.length ? state.uploads.map(u=>`<tr><td>${u.name}</td><td>${u.date}</td><td><button class="btn btn-ghost btn-sm" onclick="toast('trash','PDF removed.')">Delete</button></td></tr>`).join('') : `<tr><td colspan="3" style="text-align:center;color:var(--text-dimmer);">No PDFs uploaded yet.</td></tr>`}
+        </tbody>
+      </table></div>
+    </div>`;
+  },
+};
+
+/* ================= HELPERS ================= */
+function statCard(ic,val,lbl,delta){
+  return `<div class="card stat-card"><div class="top"><div class="ic">${iconHTML(ic)}</div></div><div class="val">${val}</div><div class="lbl">${lbl}</div>${delta?`<div class="delta">${delta}</div>`:''}</div>`;
+}
+function qa(ic,label,page){
+  return `<div class="card qa-card" onclick="showPage('${page}')"><div class="ic">${iconHTML(ic)}</div><span>${label}</span></div>`;
+}
+function emptyState(ic,title,desc,page,cta){
+  return `<div class="card empty"><div class="ic">${iconHTML(ic,34)}</div><h3 style="margin-bottom:8px;">${title}</h3><p class="mb-16">${desc}</p><button class="btn btn-primary" onclick="showPage('${page}')">${cta}</button></div>`;
+}
+function flashcardHTML(c){
+  const flipped = ui.fcFlipped.has(c.flashcard_id);
+  return `
+  <div class="flashcard ${flipped?'flipped':''}" onclick="flipCard(${c.flashcard_id})">
+    <div class="flashcard-inner">
+      <div class="flashcard-face front"><span class="cat">${c.subject}</span><p>${c.front}</p>
+        <div class="fico-row">
+          <span class="${c.bookmarked?'on':''}" onclick="event.stopPropagation();toggleBookmark(${c.flashcard_id})">${iconHTML('bookmark')}</span>
+          <span class="${c.mastered?'on':''}" onclick="event.stopPropagation();toggleMastered(${c.flashcard_id})">${iconHTML('mastered')}</span>
+        </div>
+      </div>
+      <div class="flashcard-face back"><span class="cat">Answer</span><p>${c.back}</p></div>
+    </div>
+  </div>`;
+}
+function flipCard(id){ if(ui.fcFlipped.has(id)) ui.fcFlipped.delete(id); else ui.fcFlipped.add(id); rerenderIfCurrent('flashcards'); }
+
+async function toggleMastered(id){
+  const card = ui.fcCards.find(c=>c.flashcard_id===id);
+  if(!card) return;
+  try{
+    const updated = await apiFetch(`/flashcards/${id}`, { method:'PATCH', body: JSON.stringify({ mastered: !card.mastered }) });
+    Object.assign(card, updated);
+    toast(card.mastered?'success':'refresh', card.mastered?'Marked as mastered.':'Unmarked.');
+    rerenderIfCurrent('flashcards');
+  }catch(err){ toast('warn', err.message || 'Update failed.'); }
+}
+async function toggleBookmark(id){
+  const card = ui.fcCards.find(c=>c.flashcard_id===id);
+  if(!card) return;
+  try{
+    const updated = await apiFetch(`/flashcards/${id}`, { method:'PATCH', body: JSON.stringify({ bookmarked: !card.bookmarked }) });
+    Object.assign(card, updated);
+    toast(card.bookmarked?'bookmark':'refresh', card.bookmarked?'Bookmarked for review.':'Bookmark removed.');
+    rerenderIfCurrent('flashcards');
+  }catch(err){ toast('warn', err.message || 'Update failed.'); }
+}
+
+async function generateFlashcardsNow(){
+  if(!ui.quizPdfId){
+    toast('warn','Please select a PDF module first.');
+    return;
+  }
+  try{
+    await apiFetch('/flashcards/generate', {
+      method:'POST',
+      body: JSON.stringify({ pdf_id: ui.quizPdfId, count: ui.fcCount || 10 })
+    });
+    toast('success','Flashcards generated!');
+    await loadFlashcards();
+    showPage('flashcards');
+  }catch(err){ toast('warn', err.message || 'Flashcard generation failed.'); }
+}
+
+async function loadFlashcards(){
+  try{
+    const params = new URLSearchParams();
+    if(ui.fcSubjectFilter) params.set('subject', ui.fcSubjectFilter);
+    if(ui.fcSearch) params.set('search', ui.fcSearch);
+    const qs = params.toString();
+    const data = await apiFetch('/flashcards' + (qs ? '?'+qs : ''));
+    ui.fcCards = data;
+    rerenderIfCurrent('flashcards');
+  }catch(err){ toast('warn', err.message || 'Failed to load flashcards.'); }
+}
+let _fcSearchTimer = null;
+function debouncedFlashSearch(){ clearTimeout(_fcSearchTimer); _fcSearchTimer = setTimeout(loadFlashcards, 350); }
+
+function toggleType(t){
+  if(ui.quizTypes.includes(t)) ui.quizTypes = ui.quizTypes.filter(x=>x!==t);
+  else ui.quizTypes.push(t);
+  if(ui.quizTypes.length===0) ui.quizTypes=['Multiple Choice'];
+  showPage('quizSetup');
+}
+
+function triggerFilePicker(){ document.getElementById('pdfFileInput').click(); }
+
+function handleFileSelected(e){
+  const f = e.target.files[0];
+  if(f) doRealUpload(f);
+  e.target.value = '';
+}
+
+function handleFileDrop(e){
+  e.preventDefault();
+  document.getElementById('dz').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if(f) doRealUpload(f);
+}
+
+function formatUpload(record){
+  const d = new Date(record.upload_date);
+  const dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  const sizeMb = (record.size_bytes/1024/1024).toFixed(1)+' MB';
+  return { pdf_id: record.pdf_id, name: record.filename, subject: record.subject || null, date: dateStr, size: sizeMb };
+}
+async function loadHistory(){
+  try{
+    const data = await apiFetch('/quizzes');
+    state.history = data.map(h=>({
+      subject: h.subject,
+      date: new Date(h.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+      score: h.score != null ? h.score : null,
+      difficulty: h.difficulty,
+      qcount: h.question_count,
+      time: h.time_taken_seconds != null ? fmtTime(h.time_taken_seconds) : '—'
+    }));
+    rerenderIfCurrent('history');
+  }catch(err){ toast('warn', err.message || 'Failed to load quiz history.'); }
+}
+async function loadDashboardStats(){
+  try{
+    const a = await apiFetch('/analytics/me');
+    state.analytics = a;
+    state.stats.quizzes = a.quizzes_completed || 0;
+    state.stats.streak = a.current_streak || 0;
+    state.stats.accuracy = a.accuracy_rate || 0;
+    state.stats.avgScore = a.accuracy_rate || 0;
+    const hh = Math.floor(a.weekly_study_hours||0);
+    const mm = Math.round(((a.weekly_study_hours||0) - hh) * 60);
+    state.stats.studyTime = `${hh}h ${mm.toString().padStart(2,'0')}m`;
+  }catch(err){ /* keep zeros / empty state */ }
+  // Each of these is fetched independently so one failure never blanks the others
+  try{ state.stats.pdfs = (await apiFetch('/uploads')).length; }catch(e){}
+  try{
+    const fc = await apiFetch('/flashcards');
+    state.stats.flashcards = fc.length;
+  }catch(e){}
+  try{
+    const hist = await apiFetch('/quizzes');
+    let answered = 0;
+    hist.forEach(h=>{ answered += (h.correct_count || 0) + (h.wrong_count || 0); });
+    state.stats.questions = answered;
+  }catch(e){}
+  if(currentPage==='dashboard') rerenderIfCurrent('dashboard');
+}
+async function loadAnalytics(){
+  try{
+    state.analytics = await apiFetch('/analytics/me');
+    if(currentPage==='analytics') rerenderIfCurrent('analytics');
+  }catch(err){ toast('warn', err.message || 'Failed to load analytics.'); }
+}
+async function loadAdminDashboard(){
+  try{
+    state.adminStats = await apiFetch('/admin/dashboard');
+    const all = await apiFetch('/admin/uploads');
+    state.uploads = all.map(formatUpload);
+    if(currentPage==='admin') rerenderIfCurrent('admin');
+  }catch(err){ toast('warn', err.message || 'Failed to load admin dashboard.'); }
+}
+async function loadUploads(){
+  try{
+    const data = await apiFetch('/uploads');
+    state.uploads = data.map(formatUpload);
+    if(currentPage==='dashboard' || currentPage==='upload' || currentPage==='quizSetup' || currentPage==='flashcards'){
+      rerenderIfCurrent(currentPage);
+    }
+  }catch(err){ /* silent — dashboard keeps real empty state */ }
+}
+
+async function doRealUpload(file){
+  if(!file.name.toLowerCase().endsWith('.pdf')){ toast('warn','Only PDF files are supported.'); return; }
+  const subject = document.getElementById('uploadSubjectInput').value.trim();
+  if(!subject){ toast('warn','Please enter a module/subject name first.'); return; }
+  const wrap = document.getElementById('uploadProgressWrap');
+  wrap.innerHTML = `<div class="upload-row"><div class="fico">${iconHTML('pdf')}</div><div class="meta" style="flex:1;"><b>${file.name}</b><span id="upStatus">Uploading...</span></div><div class="bar-wrap" style="width:120px;"><div class="progress-bar"><div class="progress-fill" id="upBar" style="width:35%;"></div></div></div></div>`;
+  refreshIcons();
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('subject', subject);
+  try{
+    const record = await apiFetch('/uploads', { method:'POST', body: formData });
+    document.getElementById('upBar').style.width = '100%';
+    document.getElementById('upStatus').textContent = record.status==='ready' ? 'Upload complete ✓' : 'Processing failed';
+    if(record.status==='ready'){
+      toast('success','PDF uploaded successfully.');
+    }else{
+      toast('warn','Upload saved, but text extraction failed for this file.');
+    }
+    await loadUploads();
+    setTimeout(()=>{ if(record.status==='ready'){ toast('quiz','Extracting content — ready for quiz generation.'); showPage('quizSetup'); } }, 700);
+  }catch(err){
+    document.getElementById('upStatus').textContent = 'Upload failed';
+    toast('warn', err.message || 'Upload failed.');
+  }
+}
+
+async function startGeneration(){
+  if(!ui.quizPdfId){
+    toast('warn','Please select an uploaded PDF module first.');
+    return;
+  }
+  const btn = document.getElementById('genQuizBtn');
+  if(btn) btn.disabled = true;
+  const steps = document.querySelectorAll('#procSteps .proc-step');
+  let i=0;
+  function animateStep(){
+    if(i>0){ steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); steps[i-1].querySelector('.proc-dot').innerHTML = iconHTML('check'); refreshIcons(); }
+    if(i<steps.length-1){ steps[i].classList.add('active'); steps[i].querySelector('.proc-dot').innerHTML = iconHTML('refresh'); refreshIcons(); i++; setTimeout(animateStep, 420); }
+  }
+  animateStep();
+
+  try{
+    const quiz = await apiFetch('/quizzes/generate', {
+      method:'POST',
+      body: JSON.stringify({
+        pdf_id: ui.quizPdfId,
+        question_count: ui.quizCount,
+        difficulty: ui.quizDifficulty,
+        question_types: ui.quizTypes,
+      })
+    });
+    steps.forEach(s=>{ s.classList.remove('active'); s.classList.add('done'); s.querySelector('.proc-dot').innerHTML = iconHTML('check'); });
+    refreshIcons();
+    toast('success','Quiz generated successfully!');
+    ui.activeQuiz = quiz;
+    ui.qIndex = 0;
+    ui.answersMap = {};
+    ui.quizStartTime = Date.now();
+    showPage('quizSession');
+  }catch(err){
+    toast('warn', err.message || 'Quiz generation failed.');
+    if(btn) btn.disabled = false;
+  }
+}
+function selectAnswerByIndex(ci){
+  const q = ui.activeQuiz.questions[ui.qIndex];
+  ui.answersMap[q.question_id] = q.choices[ci];
+  showPage('quizSession');
+}
+function selectAnswerText(text){
+  const q = ui.activeQuiz.questions[ui.qIndex];
+  ui.answersMap[q.question_id] = text; // no re-render — keeps input focus while typing
+}
+function navQuiz(dir){ ui.qIndex+=dir; showPage('quizSession'); }
+function elapsed(){ return Math.floor((Date.now()-ui.quizStartTime)/1000); }
+function fmtTime(sec){ const m=Math.floor(sec/60), s=sec%60; return `${m}:${s.toString().padStart(2,'0')}`; }
+async function submitQuiz(){
+  const quiz = ui.activeQuiz;
+  const answers = quiz.questions.map(q=>({ question_id:q.question_id, answer: ui.answersMap[q.question_id] || '' }));
+  const time_taken_seconds = elapsed();
+  try{
+    const result = await apiFetch(`/quizzes/${quiz.quiz_id}/submit`, {
+      method:'POST',
+      body: JSON.stringify({ answers, time_taken_seconds })
+    });
+    ui.lastResult = result;
+    toast('chart','Quiz submitted — results ready.');
+    showPage('quizResults');
+  }catch(err){
+    toast('warn', err.message || 'Failed to submit quiz.');
+  }
+}
+
+/* Initial icon render for the landing page markup already in the DOM */
+document.addEventListener('DOMContentLoaded', refreshIcons);
+refreshIcons();
+</script>
+</body>
+</html>
