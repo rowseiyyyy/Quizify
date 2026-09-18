@@ -11,8 +11,6 @@ Upload a module, and Quizify extracts the text, generates practice quizzes and f
 * **Flashcards** — Automatically generate flashcards from uploaded PDFs, with mastered/bookmarked tracking and filtering.
 * **Study Streaks** — Track daily study streaks that reset when a day is missed.
 * **Analytics** — View weekly study hours, accuracy, per-subject performance, and AI-generated study insights.
-* **Accounts & Roles** — JWT authentication with bcrypt-hashed passwords and an admin panel for managing students, subjects, and uploads.
-* **Curriculum-Aware Subjects** — BSCS subjects are pre-seeded, while BSIT subjects are managed by administrators.
 
 ## Technology Stack
 
