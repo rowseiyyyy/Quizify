@@ -1,6 +1,12 @@
-# Python
+﻿# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
 
 # Virtual environment
 venv/
@@ -12,22 +18,36 @@ env/
 .env.*
 !.env.example
 
+# AI-tool local data / worktrees
+.kilo/
+.qodo/
+
 # IDE
 .vscode/
 .idea/
 
 # Logs
 *.log
+logs/
 
 # Database
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
+
+# Local-only notes
+IMPORTANT.txt
 
 # Uploaded/generated files
 uploads/
 generated/
 temp/
+*.tmp
+
+# Node (not used, safety net)
+node_modules/
 
 # OS
 .DS_Store
