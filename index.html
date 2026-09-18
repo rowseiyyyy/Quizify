@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quizify — Upload. Learn. Master.</title>
+<link rel="icon" type="image/png" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -26,6 +27,54 @@
   --radius-sm: 10px;
   --shadow-orange: 0 8px 30px rgba(249,115,22,0.25);
 }
+
+/* Native select dropdown lists: without an explicit background/color, the OS
+   paints the popup white while option text inherits light colors -> invisible.
+   Style BOTH states explicitly (dark default, light via body.light below). */
+select option{ background:var(--charcoal); color:var(--white); }
+
+/* ===== LIGHT MODE =====
+   body.light re-themes every CSS variable; components that hardcode
+   white-alpha surfaces get explicit overrides below. */
+body.light{
+  --black:#F5F6FA;
+  --charcoal:#FFFFFF;
+  --charcoal-2:#E8EAF1;
+  --white:#191A1F;
+  --line:rgba(20,20,25,0.12);
+  --line-soft:rgba(20,20,25,0.07);
+  --text-dim:rgba(25,26,31,0.66);
+  --text-dimmer:rgba(25,26,31,0.45);
+  --grad:linear-gradient(135deg,#2A2B31 0%, #F97316 100%);
+  --shadow-orange:0 8px 30px rgba(249,115,22,0.18);
+}
+body.light select option{ background:#FFFFFF; color:#191A1F; }
+body.light .card{ background:#FFFFFF; border-color:var(--line); box-shadow:0 2px 14px rgba(20,20,40,0.06); }
+body.light .btn-ghost{ background:rgba(20,20,25,0.05); color:var(--white); }
+body.light .btn-ghost:hover{ background:rgba(20,20,25,0.09); }
+body.light .icon-btn{ background:rgba(20,20,25,0.05); }
+body.light .icon-btn:hover{ background:rgba(20,20,25,0.09); }
+body.light .field input, body.light .field select,
+body.light .search-input{ background:#FFFFFF; color:#191A1F; }
+body.light .field input::placeholder{ color:var(--text-dimmer); }
+body.light .opt-chip{ background:#FFFFFF; }
+body.light .choice .letter{ background:rgba(20,20,25,0.07); }
+body.light .choice:hover{ background:rgba(20,20,25,0.03); }
+body.light .tag{ background:rgba(20,20,25,0.06); }
+body.light .progress-bar{ background:rgba(20,20,25,0.08); }
+body.light .dropzone{ background:#FFFFFF; }
+body.light tr:hover td{ background:rgba(20,20,25,0.03); }
+body.light .navbar{ background:rgba(245,246,250,0.85); }
+body.light .topbar{ background:rgba(245,246,250,0.9); }
+body.light .sidebar{ background:#FFFFFF; }
+body.light .side-link:hover{ background:rgba(20,20,25,0.05); }
+body.light .user-chip:hover{ background:rgba(20,20,25,0.05); }
+body.light .grad-text{ background:linear-gradient(100deg,#191A1F 10%, var(--amber) 55%, var(--orange) 90%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+body.light .mock-window{ box-shadow:0 40px 90px rgba(20,20,40,0.18); }
+body.light .mock-titlebar{ background:#E8EAF1; }
+body.light .flashcard-face.front{ background:linear-gradient(160deg, #FFFFFF, #F2F3F8); }
+body.light ::-webkit-scrollbar-track{ background:var(--black); }
+body.light ::-webkit-scrollbar-thumb{ background:#C9CCD9; }
 *{box-sizing:border-box; margin:0; padding:0;}
 html{scroll-behavior:smooth;}
 body{
@@ -104,8 +153,7 @@ img{max-width:100%;}
 
 /* ===== Logo ===== */
 .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:20px; }
-.logo-mark{ width:34px; height:34px; }
-.logo-mark circle.node{ fill:var(--orange); }
+.logo-mark{ width:34px; height:34px; object-fit:contain; }
 .pulse{ animation:pulseNode 2.4s ease-in-out infinite; }
 .pulse:nth-child(2){ animation-delay:.4s; }
 .pulse:nth-child(3){ animation-delay:.8s; }
@@ -427,15 +475,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
   <nav class="navbar">
     <div class="navbar-inner">
       <div class="logo">
-        <svg class="logo-mark" viewBox="0 0 40 40"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#121212"/><stop offset="1" stop-color="#F97316"/></linearGradient></defs>
-        <rect width="40" height="40" rx="10" fill="url(#lg1)"/>
-        <path d="M10 26 V14 a3 3 0 0 1 3-3 h6" stroke="#fff" stroke-width="1.6" fill="none" opacity=".8"/>
-        <circle class="node pulse" cx="13" cy="14" r="3"/>
-        <circle class="node pulse" cx="24" cy="11" r="3"/>
-        <circle class="node pulse" cx="29" cy="20" r="3"/>
-        <circle class="node pulse" cx="20" cy="27" r="3"/>
-        <path d="M13 14 L24 11 L29 20 L20 27 L13 14" stroke="#FB923C" stroke-width="1.2" fill="none" opacity=".6"/>
-        </svg>
+        <img src="logo.png" alt="Quizify logo" class="logo-mark">
         <span>Quizify</span>
       </div>
       <div class="nav-links" id="navLinksDesktop">
@@ -644,7 +684,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
   <footer>
     <div class="container">
       <div class="footer-grid">
-        <div><div class="logo" style="margin-bottom:10px;"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/><path d="M13 14 L24 11 L29 20 L20 27 L13 14" stroke="#FB923C" stroke-width="1.2" fill="none" opacity=".6"/></svg><span>Quizify</span></div><p class="text-dim small" style="max-width:260px;">Upload. Learn. Master. An AI-powered reviewer built for students.</p></div>
+        <div><div class="logo" style="margin-bottom:10px;"><img src="logo.png" alt="Quizify logo" class="logo-mark"><span>Quizify</span></div><p class="text-dim small" style="max-width:260px;">Upload. Learn. Master. An AI-powered reviewer built for students.</p></div>
         <div><h5>Product</h5><a href="#features">Features</a><a href="#how">How it Works</a><a href="#faq">FAQ</a></div>
         <div><h5>Account</h5><a onclick="go('login')">Log In</a><a onclick="go('register')">Register</a></div>
         <div><h5>Company</h5><a>CCSIT</a><a>Contact</a><a>Privacy</a></div>
@@ -659,8 +699,8 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
   <div class="auth-wrap">
     <div class="hero-bg"></div>
     <div class="card auth-card">
-      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
-      <h2>Welcome back</h2>
+      <div class="logo"><img src="logo.png" alt="Quizify logo" class="logo-mark"><span>Quizify</span></div>
+      <h2>Hi there</h2>
       <p class="sub">Log in to continue your learning journey</p>
       <div class="err-msg" id="loginErr">Invalid email or password.</div>
       <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="name@gmail.com"></div>
@@ -678,7 +718,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
   <div class="auth-wrap">
     <div class="hero-bg"></div>
     <div class="card auth-card" style="max-width:480px;">
-      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/><circle cx="29" cy="20" r="3" fill="#F97316"/><circle cx="20" cy="27" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
+      <div class="logo"><img src="logo.png" alt="Quizify logo" class="logo-mark"><span>Quizify</span></div>
       <h2>Create your account</h2>
       <p class="sub">Start turning modules into quizzes today</p>
       <div class="field"><label>Full Name</label><input type="text" id="regName" placeholder="Enter your full name"></div>
@@ -695,7 +735,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
   <div class="auth-wrap">
     <div class="hero-bg"></div>
     <div class="card auth-card">
-      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#1E1E1E"/><circle cx="13" cy="14" r="3" fill="#F97316"/><circle cx="24" cy="11" r="3" fill="#FB923C"/></svg><span>Quizify</span></div>
+      <div class="logo"><img src="logo.png" alt="Quizify logo" class="logo-mark"><span>Quizify</span></div>
       <h2>Reset your password</h2>
       <p class="sub">Enter your email and we'll send a reset link</p>
       <div class="field"><label>Email</label><input type="email" placeholder="you@ccsit.edu.ph"></div>
@@ -709,7 +749,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
 <div class="view" id="view-app">
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="logo"><svg class="logo-mark" viewBox="0 0 40 40" width="30" height="30"><rect width="40" height="40" rx="10" fill="#F97316"/><circle cx="13" cy="14" r="3" fill="#121212"/><circle cx="24" cy="11" r="3" fill="#121212"/><circle cx="29" cy="20" r="3" fill="#121212"/><circle cx="20" cy="27" r="3" fill="#121212"/></svg><span>Quizify</span></div>
+      <div class="logo"><img src="logo.png" alt="Quizify logo" class="logo-mark" style="width:30px;height:30px;"><span>Quizify</span></div>
 
       <a class="side-link" data-p="dashboard" onclick="showPage('dashboard')"><span class="ic"><i data-lucide="layout-dashboard"></i></span>Dashboard</a>
       <a class="side-link" data-p="upload" onclick="showPage('upload')"><span class="ic"><i data-lucide="upload"></i></span>Upload Module</a>
@@ -736,7 +776,7 @@ tr:hover td{ background:rgba(255,255,255,0.02); }
         <h2 id="pageTitle">Dashboard</h2>
         <div class="topbar-right">
           <button class="icon-btn" onclick="toggleDropdown()" title="Notifications"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
-          <button class="icon-btn" onclick="toast('moon','Light mode coming soon — dark mode is default.')" title="Toggle theme"><i data-lucide="moon"></i></button>
+          <button class="icon-btn" onclick="toggleTheme()" title="Toggle light/dark mode"><i data-lucide="moon" id="themeIcon"></i></button>
         </div>
       </div>
       <div class="page-body" id="pageBody"><!-- injected --></div>
@@ -919,6 +959,8 @@ function showPage(page){
   document.getElementById('sidebar').classList.remove('open');
   window.scrollTo(0,0);
   refreshIcons();
+  // Live quiz timer: tick while in a quiz session, stop everywhere else
+  if(page==='quizSession'){ startQuizTimer(); } else { stopQuizTimer(); }
   // Load real data on-demand for each page (never fabricated values)
   if(page==='dashboard'){ loadDashboardStats(); loadUploads(); }
   if(page==='upload') loadUploads();
@@ -1047,6 +1089,13 @@ const renderers = {
         <div id="procSteps">
           ${['Extract text','Clean formatting','Identify chapters','Detect key concepts','Summarize key ideas','Generate quiz questions','Save & display results'].map((s,i)=>`<div class="proc-step" id="proc-${i}"><div class="proc-dot"></div>${s}</div>`).join('')}
         </div>
+        <div id="genProgressWrap" style="display:none;margin-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--text-dim);margin-bottom:8px;gap:10px;">
+            <span>${iconHTML('refresh',13)} Generating with AI — this can take up to a minute</span>
+            <span class="mono" id="genPct" style="color:var(--orange);font-weight:600;">1%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="genBar" style="width:1%;"></div></div>
+        </div>
       </div>
     </div>`;
   },
@@ -1072,7 +1121,7 @@ const renderers = {
     <div class="quiz-progress-wrap">
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
       <span class="qcount">Question ${i+1} of ${qs.length}</span>
-      <span class="timer">${iconHTML('clock')} ${fmtTime(elapsed())}</span>
+      <span class="timer" id="quizTimer">${iconHTML('clock')} <span id="quizTimerText">${fmtTime(elapsed())}</span></span>
     </div>
     <div class="card question-card">
       <p class="section-label mb-16">${quiz.subject} · ${quiz.difficulty} · ${q.question_type}</p>
@@ -1103,7 +1152,14 @@ flashcards(){
           <option value="20">20 cards</option>
         </select></div>
       </div>
-      <button class="btn btn-primary btn-block" style="margin-top:8px;" onclick="generateFlashcardsNow()">Generate Flashcards ${iconHTML('sparkles',15)}</button>
+      <button class="btn btn-primary btn-block" id="genFcBtn" style="margin-top:8px;" onclick="generateFlashcardsNow()">Generate Flashcards ${iconHTML('sparkles',15)}</button>
+      <div id="fcProgressWrap" style="display:none;margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--text-dim);margin-bottom:8px;gap:10px;">
+          <span>${iconHTML('refresh',13)} Generating flashcards with AI…</span>
+          <span class="mono" id="fcPct" style="color:var(--orange);font-weight:600;">1%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="fcBar" style="width:1%;"></div></div>
+      </div>
     </div>
     <div class="flash-toolbar">
       <select onchange="ui.fcSubjectFilter=this.value;loadFlashcards()">
@@ -1313,15 +1369,24 @@ async function generateFlashcardsNow(){
     toast('warn','Please select a PDF module first.');
     return;
   }
+  const btn = document.getElementById('genFcBtn');
+  if(btn) btn.disabled = true;
+  const progress = startGenerationProgress('fc');
   try{
     await apiFetch('/flashcards/generate', {
       method:'POST',
       body: JSON.stringify({ pdf_id: ui.quizPdfId, count: ui.fcCount || 10 })
     });
+    progress.finish();
     toast('success','Flashcards generated!');
     await loadFlashcards();
     showPage('flashcards');
-  }catch(err){ toast('warn', err.message || 'Flashcard generation failed.'); }
+    if(btn) btn.disabled = false;
+  }catch(err){
+    progress.abort();
+    toast('warn', err.message || 'Flashcard generation failed.');
+    if(btn) btn.disabled = false;
+  }
 }
 
 async function loadFlashcards(){
@@ -1464,6 +1529,7 @@ async function startGeneration(){
   }
   const btn = document.getElementById('genQuizBtn');
   if(btn) btn.disabled = true;
+  const progress = startGenerationProgress('gen');
   const steps = document.querySelectorAll('#procSteps .proc-step');
   let i=0;
   function animateStep(){
@@ -1484,6 +1550,7 @@ async function startGeneration(){
     });
     steps.forEach(s=>{ s.classList.remove('active'); s.classList.add('done'); s.querySelector('.proc-dot').innerHTML = iconHTML('check'); });
     refreshIcons();
+    progress.finish();
     toast('success','Quiz generated successfully!');
     ui.activeQuiz = quiz;
     ui.qIndex = 0;
@@ -1491,6 +1558,7 @@ async function startGeneration(){
     ui.quizStartTime = Date.now();
     showPage('quizSession');
   }catch(err){
+    progress.abort();
     toast('warn', err.message || 'Quiz generation failed.');
     if(btn) btn.disabled = false;
   }
@@ -1507,6 +1575,40 @@ function selectAnswerText(text){
 function navQuiz(dir){ ui.qIndex+=dir; showPage('quizSession'); }
 function elapsed(){ return Math.floor((Date.now()-ui.quizStartTime)/1000); }
 function fmtTime(sec){ const m=Math.floor(sec/60), s=sec%60; return `${m}:${s.toString().padStart(2,'0')}`; }
+
+/* Live quiz-session timer: updates #quizTimerText every second.
+   showPage('quizSession') restarts it after every re-render (nav/answer),
+   and showPage stops it when leaving the session. */
+let _quizTimerInterval = null;
+function startQuizTimer(){
+  stopQuizTimer();
+  _quizTimerInterval = setInterval(()=>{
+    const el = document.getElementById('quizTimerText');
+    if(el) el.textContent = fmtTime(elapsed());
+  }, 1000);
+}
+function stopQuizTimer(){
+  if(_quizTimerInterval){ clearInterval(_quizTimerInterval); _quizTimerInterval = null; }
+}
+
+/* Animated 1-100% generation progress. Eases toward 96% while the API call
+   is in flight (so it never falsely finishes), then snaps to 100% on success. */
+function startGenerationProgress(prefix){
+  let p = 1;
+  const wrap = document.getElementById(prefix+'ProgressWrap');
+  const bar  = document.getElementById(prefix+'Bar');
+  const pct  = document.getElementById(prefix+'Pct');
+  if(wrap) wrap.style.display = 'block';
+  const timer = setInterval(()=>{
+    p = Math.min(96, p + Math.max(0.6, (96 - p) * 0.05));
+    if(bar) bar.style.width = p.toFixed(1)+'%';
+    if(pct) pct.textContent = Math.floor(p)+'%';
+  }, 280);
+  return {
+    finish(){ clearInterval(timer); if(bar) bar.style.width='100%'; if(pct) pct.textContent='100%'; setTimeout(()=>{ if(wrap) wrap.style.display='none'; }, 700); },
+    abort(){ clearInterval(timer); if(wrap) wrap.style.display='none'; },
+  };
+}
 async function submitQuiz(){
   const quiz = ui.activeQuiz;
   const answers = quiz.questions.map(q=>({ question_id:q.question_id, answer: ui.answersMap[q.question_id] || '' }));
@@ -1523,6 +1625,26 @@ async function submitQuiz(){
     toast('warn', err.message || 'Failed to submit quiz.');
   }
 }
+
+/* ================= THEME (light / dark) ================= */
+const THEME_KEY = 'quizify-theme';
+function applyTheme(theme){
+  const light = theme === 'light';
+  document.body.classList.toggle('light', light);
+  const icon = document.getElementById('themeIcon');
+  if(icon){
+    icon.setAttribute('data-lucide', light ? 'sun' : 'moon');
+    refreshIcons();
+  }
+}
+function toggleTheme(){
+  const next = document.body.classList.contains('light') ? 'dark' : 'light';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+  toast('moon', next==='light' ? 'Light mode on.' : 'Dark mode on.');
+}
+/* Restore the saved theme on load (default: dark) */
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 
 /* Initial icon render for the landing page markup already in the DOM */
 document.addEventListener('DOMContentLoaded', refreshIcons);
