@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from app.config import settings
 from app.database import Base, engine
 from app import models  # noqa: F401  (ensures models are registered before create_all)
@@ -30,11 +32,13 @@ app.include_router(analytics.router)
 app.include_router(admin.router)
 
 
-@app.get("/", tags=["Health"])
-def root():
-    return {"status": "ok", "service": "Quizify API", "version": app.version}
-
-
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy"}
+
+
+# Serve the frontend (index.html + logo.png) at "/". Mounted AFTER all API
+# routers so API routes and /health always take precedence; html=True makes
+# "/" resolve to index.html.
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
