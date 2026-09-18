@@ -1,6 +1,6 @@
 # Quizify
 
-An AI-powered study reviewer that turns lecture PDFs into interactive quizzes and flashcards, built for first-year BSCS and BSIT students.
+An AI-powered study reviewer that turns lecture PDFs into interactive quizzes and flashcards, built for students.
 
 Upload a module, and Quizify extracts the text, generates practice quizzes and flashcards using Google Gemini with an offline fallback generator, tracks study streaks, and provides analytics on performance by subject.
 
