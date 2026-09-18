@@ -118,7 +118,7 @@ assert r["status"] == "ready"
 r = check("list my uploads", client.get("/uploads", headers=headers))
 assert len(r) == 1
 
-# 8. Generate a quiz from the uploaded PDF (offline fallback generator, no OPENAI_API_KEY set)
+# 8. Generate a quiz from the uploaded PDF (offline fallback generator, no GEMINI_API_KEY set)
 r = check("generate quiz", client.post("/quizzes/generate", json={
     "pdf_id": pdf_id,
     "subject": "Introduction to Computing",

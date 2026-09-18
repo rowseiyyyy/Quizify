@@ -13,14 +13,14 @@ admin panel — matching the frontend prototype delivered earlier.
 | ORM / DB       | SQLAlchemy — SQLite by default, MySQL in production (one env var)   |
 | Auth           | JWT (PyJWT) + bcrypt password hashing                                |
 | PDF parsing    | pdfplumber                                                           |
-| AI generation  | OpenAI API if `OPENAI_API_KEY` is set, otherwise a built-in offline heuristic generator |
+| AI generation  | Google AI Studio (Gemini) if `GEMINI_API_KEY` is set, otherwise a built-in offline heuristic generator |
 
 ## Why an offline AI fallback?
 
 The spec calls for "OpenAI API **or** a local LLM." To make sure the project runs and is fully
 demoable/gradable with zero external dependencies or API costs, `app/services/ai_service.py`
 ships with a deterministic, rule-based generator (keyword extraction + sentence-based
-question/flashcard construction) that activates automatically whenever `OPENAI_API_KEY` is
+question/flashcard construction) that activates automatically whenever `GEMINI_API_KEY` is
 empty. Set the key and it seamlessly switches to real LLM-generated questions and flashcards —
 no code changes needed either way.
 
@@ -60,12 +60,12 @@ protected — 25 assertions, all against a throwaway SQLite file.
 
 ## Enabling real AI generation
 
-Set in `.env`:
+Set in `.env` (get a free key at https://aistudio.google.com/apikey):
 ```
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=AIza...
+GEMINI_MODEL=gemini-flash-latest
 ```
-To use a local/self-hosted LLM instead, point `OPENAI_BASE_URL` at any OpenAI-compatible
+To use a local/self-hosted LLM instead, point `GEMINI_BASE_URL` at any OpenAI-compatible
 endpoint (e.g. Ollama's `/v1`, vLLM, LM Studio) — the request/response shape is unchanged.
 
 ## Authentication
@@ -117,7 +117,7 @@ the DB, or expose an internal promotion route if you need one for your deploymen
 - **Streaks**: computed transactionally on submit — a quiz submitted on a new calendar day
   extends the streak, a gap of more than one day resets it to 1, matching the spec ("missing one
   day resets the streak").
-- **Graceful AI degradation**: if `OPENAI_API_KEY` is set but the API call fails (rate limit,
+- **Graceful AI degradation**: if `GEMINI_API_KEY` is set but the API call fails (rate limit,
   network error, bad response), the app automatically falls back to the offline generator rather
   than returning a 500 to the student.
 - **BSIT subjects**: intentionally start empty (per the spec) and are fully admin-manageable via
@@ -135,7 +135,7 @@ app/
   security.py            JWT + bcrypt + auth dependencies
   services/
     pdf_service.py       PDF text extraction + cleaning + keyword extraction
-    ai_service.py         Quiz/flashcard generation (OpenAI or offline fallback)
+    ai_service.py         Quiz/flashcard generation (Gemini or offline fallback)
   routers/
     auth.py, subjects.py, uploads.py, quizzes.py, flashcards.py,
     analytics.py, admin.py

@@ -56,7 +56,7 @@ def my_analytics(db: Session = Depends(get_db), current: Student = Depends(get_c
         avg = round(sum(day_scores) / len(day_scores), 1) if day_scores else None
         weekly_scores.append({"date": day.isoformat(), "average_score": avg})
 
-    insight = _build_insight(subject_perf, weekly_scores)
+    insight = _build_insight(subject_perf, weekly_scores, accuracy, current_streak)
 
     return AnalyticsOut(
         weekly_study_hours=weekly_hours,
@@ -72,19 +72,49 @@ def my_analytics(db: Session = Depends(get_db), current: Student = Depends(get_c
     )
 
 
-def _build_insight(subject_perf, weekly_scores) -> str:
-    parts = []
+def _build_insight(subject_perf, weekly_scores, accuracy: float = 0.0,
+                   current_streak: int = 0) -> str:
+    """Personalized, actionable study advice — not just 'what to review'."""
     recent = [w["average_score"] for w in weekly_scores if w["average_score"] is not None]
+    parts = []
+
+    # 1. Trend + what it means
     if len(recent) >= 2:
         delta = recent[-1] - recent[0]
         if delta > 0:
-            parts.append(f"Your quiz scores have improved by {round(delta, 1)}% this week.")
+            parts.append(f"Your scores improved {round(delta, 1)}% this week — momentum is on your side.")
         elif delta < 0:
-            parts.append(f"Your quiz scores dipped by {round(abs(delta), 1)}% this week.")
-    low_subjects = [s for s in subject_perf if s["average_score"] < 75]
-    if low_subjects:
-        weakest = low_subjects[-1]["subject"]
-        parts.append(f"Consider reviewing {weakest} since your average score is below 75%.")
-    if not parts:
-        parts.append("Keep completing quizzes and flashcards to unlock personalized insights.")
+            parts.append(f"Scores dipped {round(abs(delta), 1)}% this week — slow down and review before moving to new material.")
+        else:
+            parts.append("Your scores held steady this week.")
+    else:
+        parts.append("You're still building a score history — each quiz you finish makes this advice sharper.")
+
+    # 2. Concrete action plan for the weakest subject
+    if subject_perf:
+        weakest = subject_perf[-1]
+        if weakest["average_score"] < 75:
+            parts.append(
+                f"Focus plan for {weakest['subject']} (avg {weakest['average_score']}%): "
+                "re-read that module, generate a 10-question quiz on it, drill flashcards on the "
+                "questions you missed, then retake the quiz the next day to lock it in."
+            )
+        elif accuracy >= 85:
+            strongest = subject_perf[0]
+            parts.append(
+                f"You're performing strongly ({accuracy}% overall). Keep {strongest['subject']} sharp with "
+                "weekly review quizzes, and try 'Hard' difficulty to stretch yourself further."
+            )
+        else:
+            parts.append(
+                f"Good base ({accuracy}% overall). To push past {round(accuracy + 10)}%: after each quiz, "
+                "turn every wrong answer into a flashcard and review it the next day — "
+                "spaced repetition beats re-reading."
+            )
+
+    # 3. Study habit advice
+    if current_streak >= 3:
+        parts.append(f"Protect your {current_streak}-day streak: even one short 10-question quiz today keeps it alive.")
+    else:
+        parts.append("Aim for at least one quiz daily — consistent short sessions beat one long cram.")
     return " ".join(parts)
