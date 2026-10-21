@@ -50,12 +50,19 @@ async def upload_pdf(
 
     try:
         text, page_count = extract_text(dest_path)
+        text = (text or "").replace("\x00", "")
         record.extracted_text = text
         record.page_count = page_count
         record.status = "ready" if text.strip() else "failed"
     except Exception:
         record.status = "failed"
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        record = db.get(PDFUpload, record.pdf_id)
+        record.status = "failed"
+        db.commit()
     db.refresh(record)
 
     return record

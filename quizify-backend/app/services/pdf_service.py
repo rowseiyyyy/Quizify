@@ -24,6 +24,7 @@ def extract_text(filepath: Path) -> Tuple[str, int]:
 
 def clean_text(raw: str) -> str:
     """Collapse whitespace, drop page-number-only lines, normalize bullets."""
+    raw = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", raw or "")  # remove NUL/control chars Postgres rejects
     lines = raw.split("\n")
     cleaned_lines = []
     for line in lines:
